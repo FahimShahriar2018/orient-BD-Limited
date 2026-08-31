@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}Warranty Claims & Support | Orient Computers & Engineering{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Warranty & Customer Support</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      
+      <div class="card shadow-sm border-0 p-4 p-md-5 mb-4">
+        
+        <div class="text-center mb-4">
+          <div class="logo-icon mx-auto mb-2" style="width: 46px; height: 46px; font-size: 1.5rem; border-radius: 10px; background: var(--orient-primary); display: flex; align-items: center; justify-content: center; color: white;">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h3 class="fw-bold text-dark mb-1">Warranty RMA Claim & Support Request</h3>
+          <p class="text-muted small">Submit your official warranty inquiries, delivery concerns, or hardware technical support requests.</p>
+        </div>
+
+        <form method="POST" action="{% url 'service:complain' %}">
+          {% csrf_token %}
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Your Full Name <span class="text-danger">*</span></label>
+              {{ form.name }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Mobile Phone <span class="text-danger">*</span></label>
+              {{ form.phone }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Email Address <span class="text-danger">*</span></label>
+              {{ form.email }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Order Tracking # / Invoice Ref (Optional)</label>
+              {{ form.order_reference }}
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">Subject / Hardware Issue <span class="text-danger">*</span></label>
+              {{ form.subject }}
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">Detailed Explanation & Serial Number <span class="text-danger">*</span></label>
+              {{ form.message }}
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">
+              <i class="bi bi-send-fill me-2"></i> Submit Support Ticket
+            </button>
+          </div>
+        </form>
+
+        <div class="mt-4 pt-3 border-top text-center text-muted small">
+          <i class="bi bi-telephone-fill text-warning me-1"></i> Urgent RMA Inquiry? Call our warranty hotline: <strong>+880 1711-000001</strong>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

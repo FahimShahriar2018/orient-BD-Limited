@@ -1,0 +1,208 @@
+{% extends 'adminpanel/base_admin.html' %}
+{% load static orient_tags %}
+
+{% block title %}Order Control: {{ order.tracking_number }} | Orient Back-Office{% endblock %}
+{% block page_title %}Order Management: {{ order.tracking_number }}{% endblock %}
+
+{% block admin_content %}
+
+<div class="row g-4 mb-4">
+  
+  <!-- Left Column: Customer Details & Ordered Items -->
+  <div class="col-lg-8">
+    
+    <!-- Order Master Card -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+        <div>
+          <span class="text-muted small">Tracking Number:</span>
+          <strong class="font-monospace fs-5 text-primary ms-1">{{ order.tracking_number }}</strong>
+        </div>
+        <span class="badge bg-primary fs-6 px-3 py-1.5">{{ order.order_status }}</span>
+      </div>
+
+      <div class="card-body p-4">
+        
+        <!-- Recipient Information Grid -->
+        <div class="row g-3 mb-4 small">
+          <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3 border h-100">
+              <h6 class="fw-bold text-dark mb-2"><i class="bi bi-person-fill text-primary me-1"></i> Customer Contact</h6>
+              <div><strong>{{ order.shipping_address.fullName }}</strong></div>
+              <div class="text-muted">Phone: <strong>{{ order.shipping_address.phone }}</strong></div>
+              <div class="text-muted">Email: {{ order.shipping_address.email }}</div>
+              {% if order.user %}
+                <span class="badge bg-success-subtle text-success border mt-2">Registered Customer Account</span>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary border mt-2">Guest Order</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="p-3 bg-light rounded-3 border h-100">
+              <h6 class="fw-bold text-dark mb-2"><i class="bi bi-geo-alt-fill text-primary me-1"></i> Shipping Destination</h6>
+              <div class="text-dark fw-semibold">{{ order.shipping_address.street }}</div>
+              <div class="text-muted">{{ order.shipping_address.district }}, {{ order.shipping_address.division }}</div>
+              {% if order.shipping_address.postalCode %}
+                <div class="text-muted">Postal Code: {{ order.shipping_address.postalCode }}</div>
+              {% endif %}
+              <div class="mt-2 text-primary fw-bold">Method: {{ order.get_shipping_method_display }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MFS & Payment Verification Details (REQ-F-ADM-03) -->
+        <div class="p-3 bg-primary-subtle border border-primary-subtle rounded-3 mb-4 small">
+          <h6 class="fw-bold text-primary-emphasis mb-2"><i class="bi bi-wallet2 me-1"></i> Payment Channel & Mobile Banking Verification</h6>
+          <div class="row g-2">
+            <div class="col-sm-4">
+              <span class="text-muted d-block">Channel:</span>
+              <strong class="text-uppercase text-dark">{{ order.payment_method }}</strong>
+            </div>
+            <div class="col-sm-4">
+              <span class="text-muted d-block">Transaction ID (TrxID):</span>
+              {% if order.payment_result.transactionId %}
+                <code class="fs-6 fw-bold text-danger">{{ order.payment_result.transactionId }}</code>
+              {% else %}
+                <span class="text-muted">Not applicable (COD / Card)</span>
+              {% endif %}
+            </div>
+            <div class="col-sm-4">
+              <span class="text-muted d-block">Sender Mobile:</span>
+              <strong class="text-dark">{{ order.payment_result.senderNumber|default:'N/A' }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Packaged Items Table -->
+        <h6 class="fw-bold text-dark mb-3">Itemized Hardware Items</h6>
+        <div class="table-responsive mb-3">
+          <table class="table table-bordered align-middle small mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Hardware Item</th>
+                <th class="text-center">Unit Price</th>
+                <th class="text-center">Qty</th>
+                <th class="text-end">Line Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in order.items.all %}
+                <tr>
+                  <td>
+                    <strong class="text-dark">{{ item.name }}</strong>
+                    <small class="text-muted d-block">SKU: {{ item.product.sku }} | Warranty: {{ item.product.warranty }}</small>
+                  </td>
+                  <td class="text-center font-monospace">{{ item.price|bdt }}</td>
+                  <td class="text-center fw-bold">{{ item.qty }}</td>
+                  <td class="text-end fw-bold font-monospace">{{ item.line_total|bdt }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot class="table-light">
+              <tr>
+                <td colspan="3" class="text-end fw-bold">Items Subtotal:</td>
+                <td class="text-end fw-bold font-monospace">{{ order.items_price|bdt }}</td>
+              </tr>
+              {% if order.discount_amount > 0 %}
+                <tr class="text-success">
+                  <td colspan="3" class="text-end fw-bold">Coupon Discount:</td>
+                  <td class="text-end fw-bold font-monospace">- {{ order.discount_amount|bdt }}</td>
+                </tr>
+              {% endif %}
+              <tr>
+                <td colspan="3" class="text-end fw-bold">Courier Delivery Fee:</td>
+                <td class="text-end fw-bold font-monospace">{{ order.shipping_price|bdt }}</td>
+              </tr>
+              <tr class="table-primary fs-6">
+                <td colspan="3" class="text-end fw-extrabold text-primary">Grand Total:</td>
+                <td class="text-end fw-extrabold text-primary font-monospace">{{ order.total_price|bdt }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <a href="{% url 'adminpanel:orders' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Orders List
+          </a>
+          <a href="{% url 'orders:print_invoice' tracking_number=order.tracking_number %}" target="_blank" class="btn btn-outline-dark btn-sm">
+            <i class="bi bi-printer me-1"></i> Open Printable Invoice
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right Column: 1-Click Pipeline Advancement Control (REQ-F-ADM-03) -->
+  <div class="col-lg-4">
+    
+    <!-- 1-Click Pipeline Status Advance Card -->
+    <div class="card shadow-sm border-0 mb-4 sticky-lg-top" style="top: 80px;">
+      <div class="card-header bg-white border-bottom py-3">
+        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-sliders me-2 text-primary"></i> Pipeline Control</h6>
+      </div>
+
+      <div class="card-body p-4">
+        
+        <!-- 1-Click Advance Next Stage -->
+        <form action="{% url 'adminpanel:order_advance' tracking_number=order.tracking_number %}" method="POST" class="mb-4">
+          {% csrf_token %}
+          <label class="form-label small fw-bold text-dark">Quick Step Advancement</label>
+          <div class="mb-3">
+            <input type="text" name="note" class="form-control form-control-sm" placeholder="Optional audit note (e.g. Dispatched via Steadfast #ST123)">
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold shadow-sm" {% if order.order_status == 'Delivered' or order.order_status == 'Cancelled' %}disabled{% endif %}>
+            <i class="bi bi-chevron-double-right me-1"></i> Advance to Next Stage
+          </button>
+        </form>
+
+        <hr>
+
+        <!-- Direct Target Status Override -->
+        <form action="{% url 'adminpanel:order_advance' tracking_number=order.tracking_number %}" method="POST">
+          {% csrf_token %}
+          <label class="form-label small fw-bold text-dark">Direct Status Override</label>
+          <div class="mb-2">
+            <select name="target_status" class="form-select form-select-sm">
+              <option value="Pending" {% if order.order_status == 'Pending' %}selected{% endif %}>Pending</option>
+              <option value="Confirmed" {% if order.order_status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+              <option value="Processing" {% if order.order_status == 'Processing' %}selected{% endif %}>Processing</option>
+              <option value="Shipped" {% if order.order_status == 'Shipped' %}selected{% endif %}>Shipped</option>
+              <option value="Delivered" {% if order.order_status == 'Delivered' %}selected{% endif %}>Delivered</option>
+              <option value="Cancelled" {% if order.order_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <input type="text" name="note" class="form-control form-control-sm" placeholder="Reason for override...">
+          </div>
+          <button type="submit" class="btn btn-outline-secondary btn-sm w-100 fw-semibold">
+            Update Status
+          </button>
+        </form>
+
+        <hr>
+
+        <!-- Timeline Log -->
+        <h6 class="fw-bold small text-dark mb-2">Fulfillment Log History</h6>
+        <div class="border-start border-2 border-primary ps-2 py-1 small">
+          {% for t in order.status_timeline %}
+            <div class="mb-2">
+              <strong class="text-primary d-block">{{ t.status }}</strong>
+              <span class="text-dark">{{ t.note }}</span>
+              <small class="text-muted d-block" style="font-size: 0.7rem;">{{ t.timestamp|slice:":19" }}</small>
+            </div>
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

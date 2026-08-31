@@ -1,0 +1,109 @@
+{% extends 'adminpanel/base_admin.html' %}
+{% load static orient_tags %}
+
+{% block title %}Registered Customers Directory | Orient Back-Office{% endblock %}
+{% block page_title %}Registered Customers Directory{% endblock %}
+
+{% block admin_content %}
+
+<!-- Search Header -->
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body p-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <form method="GET" action="{% url 'adminpanel:customers' %}" class="d-flex gap-2" style="max-width: 400px;">
+        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search customer name, email, phone..." value="{{ q }}">
+        <button type="submit" class="btn btn-secondary btn-sm">Search</button>
+      </form>
+      <span class="text-muted small">
+        Showing registered retail & corporate user accounts
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Table Card (REQ-F-ADM-04) -->
+<div class="card shadow-sm border-0">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 small">
+      <thead class="table-light">
+        <tr>
+          <th>Customer Name</th>
+          <th>Email Address</th>
+          <th>Mobile Phone</th>
+          <th>Location</th>
+          <th>Account Role</th>
+          <th>Order Volume</th>
+          <th>Registration Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cust in page_obj %}
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;">
+                  {{ cust.first_name|slice:":1"|default:cust.username|slice:":1"|upper }}
+                </div>
+                <div>
+                  <strong class="d-block text-dark">{{ cust.get_full_name|default:cust.username }}</strong>
+                  <small class="text-muted">@{{ cust.username }}</small>
+                </div>
+              </div>
+            </td>
+
+            <td>{{ cust.email }}</td>
+            <td>{{ cust.phone|default:'Not provided' }}</td>
+            <td>
+              {% if cust.address_district %}
+                <span>{{ cust.address_district }}, {{ cust.address_division }}</span>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+
+            <td>
+              {% if cust.role == 'admin' or cust.is_staff %}
+                <span class="badge bg-danger">Admin</span>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary">Customer</span>
+              {% endif %}
+            </td>
+
+            <td>
+              <span class="badge bg-primary rounded-pill px-2.5">{{ cust.order_count }} order{{ cust.order_count|pluralize }}</span>
+            </td>
+
+            <td class="text-muted">{{ cust.date_joined|date:"M d, Y" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-4 text-muted">No registered customer accounts found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+    <div class="card-footer bg-white py-3">
+      <ul class="pagination pagination-sm justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}">Previous</a></li>
+        {% endif %}
+        {% for p in page_obj.paginator.page_range %}
+          {% if page_obj.number == p %}
+            <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+          {% elif p > page_obj.number|add:'-3' and p < page_obj.number|add:'3' %}
+            <li class="page-item"><a class="page-link" href="?page={{ p }}&q={{ q }}">{{ p }}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}">Next</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

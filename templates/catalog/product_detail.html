@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}{{ product.name }} | Orient Computers & Engineering{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+
+  <!-- Breadcrumbs -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'catalog:product_list' %}" class="text-decoration-none">Shop</a></li>
+      <li class="breadcrumb-item"><a href="{{ product.category.get_absolute_url }}" class="text-decoration-none">{{ product.category.name }}</a></li>
+      <li class="breadcrumb-item active text-truncate" aria-current="page" style="max-width: 300px;">{{ product.name }}</li>
+    </ol>
+  </nav>
+
+  <!-- PDP Master Section -->
+  <div class="card shadow-sm border-0 p-4 p-lg-5 mb-5">
+    <div class="row g-5">
+      
+      <!-- Left Column: Media Gallery (REQ-F-PDP-01) -->
+      <div class="col-lg-5">
+        <div class="sticky-lg-top" style="top: 80px;">
+          
+          <!-- Main Display Image Container -->
+          <div class="border rounded-3 p-3 bg-white text-center mb-3" style="height: 380px; display: flex; align-items: center; justify-content: center;">
+            <img id="mainProductImage" src="{{ product.primary_image_url }}" alt="{{ product.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+          </div>
+
+          <!-- Thumbnails Switcher Carousel -->
+          {% if images.count > 1 %}
+            <div class="d-flex gap-2 overflow-x-auto pb-2">
+              {% for img in images %}
+                <img src="{{ img.url }}" alt="{{ product.name }}" class="border rounded p-1 thumb-switcher {% if forloop.first %}border-primary border-2{% endif %}" style="width: 70px; height: 70px; object-fit: contain; cursor: pointer;" onclick="document.getElementById('mainProductImage').src='{{ img.url }}'; document.querySelectorAll('.thumb-switcher').forEach(el=>el.classList.remove('border-primary','border-2')); this.classList.add('border-primary','border-2');">
+              {% endfor %}
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <!-- Right Column: Specs, Pricing, Stock & Add-To-Cart -->
+      <div class="col-lg-7">
+        
+        <!-- Brand & SKU -->
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+          {% if brand_obj %}
+            <a href="{{ brand_obj.get_absolute_url }}" class="badge px-3 py-2 text-decoration-none text-white fs-6 fw-bold" style="background-color: #4F2C70;">
+              <i class="bi bi-award me-1"></i> {{ brand_obj.name }}
+            </a>
+          {% else %}
+            <a href="{% url 'catalog:product_list' %}?brand={{ product.brand|urlencode }}" class="badge px-3 py-2 text-decoration-none text-white fs-6 fw-bold" style="background-color: #4F2C70;">
+              <i class="bi bi-award me-1"></i> {{ product.brand }}
+            </a>
+          {% endif %}
+          <span class="text-muted small">SKU: <strong class="text-dark">{{ product.sku }}</strong></span>
+          <span class="text-muted small ms-auto">Category: <a href="{{ product.category.get_absolute_url }}" class="text-decoration-none" style="color: #92278F;">{{ product.category.name }}</a></span>
+        </div>
+
+        <h2 class="fw-extrabold text-dark mb-3">{{ product.name }}</h2>
+
+        <!-- Ratings & Reviews Count -->
+        <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
+          <div class="text-warning">
+            {% for _ in product.rating|range_stars %}
+              <i class="bi bi-star-fill"></i>
+            {% endfor %}
+            {% for _ in product.rating|empty_stars %}
+              <i class="bi bi-star"></i>
+            {% endfor %}
+          </div>
+          <span class="fw-bold text-dark">{{ product.rating }}</span>
+          <span class="text-muted small">({{ total_reviews }} verified customer review{{ total_reviews|pluralize }})</span>
+          <span class="text-muted">|</span>
+          <span class="badge {% if product.is_in_stock %}bg-success-subtle text-success border border-success-subtle{% else %}bg-danger-subtle text-danger border border-danger-subtle{% endif %} px-2.5 py-1">
+            {% if product.is_in_stock %}<i class="bi bi-check-circle-fill me-1"></i> In Stock ({{ product.count_in_stock }} units){% else %}<i class="bi bi-x-circle-fill me-1"></i> Out of Stock{% endif %}
+          </span>
+        </div>
+
+        <!-- BDT Price Display / Call For Price (REQ-F-PDP-02) -->
+        <div class="p-3 bg-light rounded-3 mb-4 border d-flex flex-wrap justify-content-between align-items-center">
+          <div>
+            {% if product.is_call_for_price %}
+              <div class="d-flex align-items-baseline gap-2">
+                <span class="fs-2 fw-extrabold" style="color: #4F2C70;">Call For Price</span>
+                <span class="badge text-white" style="background-color: #92278F;">Enterprise Quotation</span>
+              </div>
+              <div class="text-muted small mt-1"><i class="bi bi-telephone-fill me-1" style="color: #4F2C70;"></i> Call dedicated sales desk at <strong>09642222224</strong></div>
+            {% elif product.discount_price > 0 %}
+              <div class="d-flex align-items-baseline gap-2">
+                <span class="fs-2 fw-extrabold" style="color: #92278F;">{{ product.discount_price|bdt }}</span>
+                <span class="fs-5 text-muted text-decoration-line-through">{{ product.price|bdt }}</span>
+                <span class="badge bg-danger">SAVE {{ product.discount_percentage }}%</span>
+              </div>
+              <div class="text-muted small mt-1"><i class="bi bi-shield-check text-success me-1"></i> Price includes standard retail VAT/Tax</div>
+            {% else %}
+              <span class="fs-2 fw-extrabold" style="color: #92278F;">{{ product.price|bdt }}</span>
+              <div class="text-muted small mt-1"><i class="bi bi-shield-check text-success me-1"></i> Price includes standard retail VAT/Tax</div>
+            {% endif %}
+          </div>
+
+          <div class="text-end">
+            <span class="badge bg-white text-dark border p-2"><i class="bi bi-award-fill text-warning me-1"></i> {{ product.warranty }}</span>
+          </div>
+        </div>
+
+        <!-- Key Bullet Highlights (REQ-F-PDP-02) -->
+        {% if product.short_specs %}
+          <div class="mb-4">
+            <h6 class="fw-bold text-dark mb-2">Key Highlights:</h6>
+            <ul class="list-unstyled mb-0">
+              {% for spec in product.short_specs %}
+                <li class="mb-1 text-secondary"><i class="bi bi-check-circle me-2" style="color: #92278F;"></i> {{ spec }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        <!-- Actions: Call Hotline vs Add to Cart + Order Now -->
+        {% if product.is_call_for_price %}
+          <div class="p-3 mb-4 rounded-3 border bg-white shadow-sm">
+            <div class="row g-2 align-items-center">
+              <div class="col-12 col-sm-6">
+                <a href="tel:09642222224" class="btn btn-purple btn-lg w-100 fw-bold shadow-sm">
+                  <i class="bi bi-telephone-fill me-2"></i> Call 09642222224
+                </a>
+              </div>
+              <div class="col-12 col-sm-6">
+                <a href="{% url 'service:complain' %}?subject=Quotation+Request+for+{{ product.name|urlencode }}" class="btn btn-outline-primary btn-lg w-100 fw-bold">
+                  <i class="bi bi-envelope-paper me-2"></i> Request Formal Quote
+                </a>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <!-- Add To Cart & Order Now Form (REQ-F-PDP-04) -->
+          <form action="{% url 'cart:cart_add' %}" method="POST" class="mb-4" id="pdp-cart-form">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            
+            <div class="row g-2 align-items-center mb-3">
+              <div class="col-auto">
+                <label class="form-label small fw-bold mb-1">Quantity:</label>
+                <div class="input-group" style="width: 130px;">
+                  <button type="button" class="btn btn-outline-secondary" onclick="let q = document.getElementById('pdp-qty'); if(q.value > 1) q.value--;">-</button>
+                  <input type="number" name="qty" id="pdp-qty" class="form-control text-center font-monospace" value="1" min="1" max="{{ product.count_in_stock }}" readonly>
+                  <button type="button" class="btn btn-outline-secondary" onclick="let q = document.getElementById('pdp-qty'); if(q.value < {{ product.count_in_stock }}) q.value++;">+</button>
+                </div>
+              </div>
+
+              <div class="col-12 col-sm">
+                <label class="form-label d-block small fw-bold mb-1">&nbsp;</label>
+                <button type="submit" class="btn btn-outline-primary btn-lg w-100 fw-bold shadow-sm" {% if not product.is_in_stock %}disabled{% endif %}>
+                  <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                </button>
+              </div>
+
+              <div class="col-12 col-sm">
+                <label class="form-label d-block small fw-bold mb-1">&nbsp;</label>
+                <button type="button" onclick="let q = document.getElementById('pdp-qty').value; window.location.href='{% url 'cart:buy_now' product_id=product.id %}?qty=' + q;" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" {% if not product.is_in_stock %}disabled{% endif %}>
+                  <i class="bi bi-bag-check-fill me-1"></i> Order Now
+                </button>
+              </div>
+
+              <div class="col-auto">
+                <label class="form-label d-block small fw-bold mb-1">&nbsp;</label>
+                <button type="button" class="btn btn-outline-danger btn-lg wishlist-toggle-btn" data-product-id="{{ product.id }}" title="Wishlist">
+                  <i class="bi bi-heart"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+        {% endif %}
+
+        <!-- Social Share Bar (Matches Live Orient PDP) -->
+        <div class="d-flex align-items-center gap-2 mb-4 p-2 bg-white rounded-3 border small">
+          <span class="fw-bold text-muted me-1"><i class="bi bi-share-fill me-1 text-primary"></i> Share:</span>
+          <!-- Facebook -->
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ canonical_url|urlencode }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="Share on Facebook">
+            <i class="bi bi-facebook"></i>
+          </a>
+          <!-- WhatsApp -->
+          <a href="https://api.whatsapp.com/send?text={{ product.name|urlencode }}+{{ canonical_url|urlencode }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="Share on WhatsApp">
+            <i class="bi bi-whatsapp"></i>
+          </a>
+          <!-- LinkedIn -->
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ canonical_url|urlencode }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-info rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="Share on LinkedIn">
+            <i class="bi bi-linkedin"></i>
+          </a>
+          <!-- Twitter / X -->
+          <a href="https://twitter.com/intent/tweet?url={{ canonical_url|urlencode }}&text={{ product.name|urlencode }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-dark rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="Share on X (Twitter)">
+            <i class="bi bi-twitter-x"></i>
+          </a>
+        </div>
+
+        <!-- Trust Propositions Bar -->
+        <div class="row g-2 pt-3 border-top text-center small text-muted">
+          <div class="col-4">
+            <i class="bi bi-truck d-block fs-5 mb-1" style="color: #92278F;"></i>
+            <span>64-District Courier</span>
+          </div>
+          <div class="col-4">
+            <i class="bi bi-shield-check text-success d-block fs-5 mb-1"></i>
+            <span>Official Warranty</span>
+          </div>
+          <div class="col-4">
+            <i class="bi bi-arrow-repeat text-warning d-block fs-5 mb-1"></i>
+            <span>3-Day Easy Replacement</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Exhaustive Technical Specification Matrix Table (REQ-F-PDP-02) -->
+  <div class="card shadow-sm border-0 p-4 p-lg-5 mb-5">
+    <h4 class="fw-extrabold text-dark mb-3"><i class="bi bi-cpu text-primary me-2"></i> Technical Specifications</h4>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle mb-0">
+        <tbody>
+          <tr>
+            <th style="width: 30%;" class="text-secondary bg-light">Manufacturer Brand</th>
+            <td class="fw-bold text-dark">{{ product.brand }}</td>
+          </tr>
+          <tr>
+            <th class="text-secondary bg-light">Product SKU Code</th>
+            <td class="font-monospace text-dark">{{ product.sku }}</td>
+          </tr>
+          <tr>
+            <th class="text-secondary bg-light">Official Warranty</th>
+            <td class="text-dark">{{ product.warranty }}</td>
+          </tr>
+          {% for spec_k, spec_v in product.technical_specs.items %}
+            <tr>
+              <th class="text-secondary bg-light">{{ spec_k }}</th>
+              <td class="text-dark">{{ spec_v }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-4">
+      <h6 class="fw-bold text-dark">Full Product Description</h6>
+      <p class="text-secondary small leading-relaxed">{{ product.description|linebreaks }}</p>
+    </div>
+  </div>
+
+  <!-- Verified Customer Reviews Engine & Histogram (REQ-F-PDP-03) -->
+  <div class="card shadow-sm border-0 p-4 p-lg-5 mb-5">
+    <div class="row g-4 align-items-center mb-4 pb-4 border-bottom">
+      
+      <!-- Average Rating Score -->
+      <div class="col-md-4 text-center border-end">
+        <h1 class="display-3 fw-extrabold text-primary mb-1">{{ product.rating }}</h1>
+        <div class="text-warning fs-5 mb-1">
+          {% for _ in product.rating|range_stars %}
+            <i class="bi bi-star-fill"></i>
+          {% endfor %}
+          {% for _ in product.rating|empty_stars %}
+            <i class="bi bi-star"></i>
+          {% endfor %}
+        </div>
+        <p class="text-muted small mb-0">Based on {{ total_reviews }} customer review{{ total_reviews|pluralize }}</p>
+      </div>
+
+      <!-- Star Distribution Histogram -->
+      <div class="col-md-5">
+        {% for star, pct in star_percentages.items reversed %}
+          <div class="d-flex align-items-center gap-2 mb-1 small">
+            <span style="width: 50px;">{{ star }} Star</span>
+            <div class="progress flex-grow-1" style="height: 8px;">
+              <div class="progress-bar bg-warning" role="progressbar" style="width: {{ pct }}%;" aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <span class="text-muted" style="width: 40px; font-size: 0.75rem;">{{ pct }}%</span>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Write Review CTA -->
+      <div class="col-md-3 text-center">
+        {% if user.is_authenticated %}
+          {% if user_has_reviewed %}
+            <span class="badge bg-success-subtle text-success border p-2"><i class="bi bi-check-circle-fill me-1"></i> Review Submitted</span>
+          {% else %}
+            <a href="#reviewFormSection" class="btn btn-outline-primary btn-sm fw-bold">Write a Review</a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-outline-primary btn-sm fw-bold">Sign In to Review</a>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- Review Items List -->
+    <div class="mb-4">
+      <h5 class="fw-bold text-dark mb-3">Customer Feedback</h5>
+      {% for review in reviews %}
+        <div class="p-3 bg-light rounded-3 mb-3 border">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <strong class="text-dark">{{ review.user.first_name|default:review.user.username }}</strong>
+              <span class="badge bg-success-subtle text-success border ms-2" style="font-size: 0.65rem;">Verified Purchaser</span>
+            </div>
+            <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+          </div>
+          <div class="text-warning small mb-2">
+            {% for _ in review.rating|range_stars %}
+              <i class="bi bi-star-fill"></i>
+            {% endfor %}
+            {% for _ in review.rating|empty_stars %}
+              <i class="bi bi-star"></i>
+            {% endfor %}
+            <strong class="text-dark ms-2">{{ review.title }}</strong>
+          </div>
+          <p class="text-secondary small mb-0">{{ review.body }}</p>
+        </div>
+      {% empty %}
+        <p class="text-muted small">No customer reviews yet. Be the first to share your performance benchmark!</p>
+      {% endfor %}
+    </div>
+
+    <!-- Review Submission Form -->
+    {% if user.is_authenticated and not user_has_reviewed %}
+      <div class="pt-4 border-top" id="reviewFormSection">
+        <h5 class="fw-bold text-dark mb-3">Submit Your Hardware Review</h5>
+        <form action="{% url 'catalog:submit_review' slug=product.slug %}" method="POST">
+          {% csrf_token %}
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Rating Score</label>
+              {{ review_form.rating }}
+            </div>
+            <div class="col-md-8">
+              <label class="form-label small fw-bold">Headline Summary</label>
+              {{ review_form.title }}
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">Detailed Experience & Benchmark Notes</label>
+              {{ review_form.body }}
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm fw-bold">Publish Review</button>
+        </form>
+      </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Related Hardware Recommendations (REQ-F-PDP-05) -->
+  {% if related_products %}
+    <div class="mb-5">
+      <h4 class="fw-extrabold text-dark mb-3">Compatible & Related Hardware</h4>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
+        {% for rel in related_products %}
+          <div class="col">
+            {% include 'catalog/partials/product_card.html' with product=rel %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

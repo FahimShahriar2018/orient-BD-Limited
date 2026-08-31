@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}Orient Computers & Engineering | Leading Wholesale & Retail Store in Bangladesh{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner & Side Promo Highlights (Matches Live Orient Layout) -->
+<div class="container-fluid px-lg-5 pt-3 mb-4">
+  <div class="row g-3">
+    
+    <!-- Main Carousel Banner (8 Cols) -->
+    <div class="col-lg-8">
+      <div id="orientHeroCarousel" class="carousel slide rounded-4 overflow-hidden shadow-sm h-100 border" data-bs-ride="carousel" style="min-height: 380px;">
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#orientHeroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+          <button type="button" data-bs-target="#orientHeroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+          <button type="button" data-bs-target="#orientHeroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+
+        <div class="carousel-inner h-100">
+          <!-- Slide 1: Interactive Flat Panels -->
+          <div class="carousel-item active p-4 p-md-5 text-white position-relative" style="background: linear-gradient(135deg, #4F2C70 0%, #7B1F78 100%); min-height: 380px;">
+            <div class="row align-items-center h-100 py-3">
+              <div class="col-md-7">
+                <span class="badge bg-warning text-dark px-3 py-1 mb-3 text-uppercase fw-bold"><i class="bi bi-display me-1"></i> Authorized Distributor</span>
+                <h1 class="h2 fw-extrabold mb-2 text-white">ViewSonic 4K UHD Interactive Flat Panels</h1>
+                <p class="small text-white-50 mb-4">Enterprise EDLA certified interactive boards with multi-touch stylus, wireless screen casting, and 3-Year official commercial warranty.</p>
+                <div class="d-flex gap-2">
+                  <a href="{% url 'catalog:product_list' %}?category=audio-visual" class="btn btn-light fw-bold px-4 shadow-sm" style="color: #4F2C70;">
+                    Explore Displays <i class="bi bi-arrow-right ms-1"></i>
+                  </a>
+                  <a href="tel:09642222224" class="btn btn-outline-light fw-semibold px-3">
+                    <i class="bi bi-telephone-fill me-1"></i> Call 09642222224
+                  </a>
+                </div>
+              </div>
+              <div class="col-md-5 d-none d-md-flex justify-content-center">
+                <div style="font-size: 7.5rem; color: rgba(255,255,255,0.18);">
+                  <i class="bi bi-display"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 2: Solar Renewable Energy & ESS -->
+          <div class="carousel-item p-4 p-md-5 text-white position-relative" style="background: linear-gradient(135deg, #1E1B4B 0%, #4F2C70 100%); min-height: 380px;">
+            <div class="row align-items-center h-100 py-3">
+              <div class="col-md-7">
+                <span class="badge bg-danger text-white px-3 py-1 mb-3 text-uppercase fw-bold"><i class="bi bi-sun-fill me-1"></i> Clean Power Storage</span>
+                <h1 class="h2 fw-extrabold mb-2 text-white">SAKO Solar Hybrid Inverters & Lithium ESS</h1>
+                <p class="small text-white-50 mb-4">High-efficiency pure sine wave hybrid inverters and 51.2V Li-Cube energy storage packs for industrial & residential load shedding backup.</p>
+                <div class="d-flex gap-2">
+                  <a href="{% url 'catalog:product_list' %}?category=renewable-energy" class="btn btn-warning text-dark fw-bold px-4 shadow-sm">
+                    View Solar Gear <i class="bi bi-arrow-right ms-1"></i>
+                  </a>
+                  <a href="{% url 'catalog:product_list' %}?category=battery" class="btn btn-outline-light fw-semibold px-3">
+                    Batteries
+                  </a>
+                </div>
+              </div>
+              <div class="col-md-5 d-none d-md-flex justify-content-center">
+                <div style="font-size: 7.5rem; color: rgba(255,255,255,0.18);">
+                  <i class="bi bi-battery-charging"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3: Patriot Gaming & PC Components -->
+          <div class="carousel-item p-4 p-md-5 text-white position-relative" style="background: linear-gradient(135deg, #0F172A 0%, #3B0764 100%); min-height: 380px;">
+            <div class="row align-items-center h-100 py-3">
+              <div class="col-md-7">
+                <span class="badge bg-info text-dark px-3 py-1 mb-3 text-uppercase fw-bold"><i class="bi bi-cpu me-1"></i> Gaming & Performance</span>
+                <h1 class="h2 fw-extrabold mb-2 text-white">Patriot Viper DDR5 RAM & Gen4 NVMe SSDs</h1>
+                <p class="small text-white-50 mb-4">Official distributor for Patriot Memory, TrendSonic gaming casings, and Apollo power solutions with genuine warranty in BD.</p>
+                <div class="d-flex gap-2">
+                  <a href="{% url 'catalog:product_list' %}?category=pc-component" class="btn btn-primary fw-bold px-4 shadow-sm">
+                    PC Components <i class="bi bi-arrow-right ms-1"></i>
+                  </a>
+                  <a href="{% url 'catalog:brand_list' %}" class="btn btn-outline-light fw-semibold px-3">
+                    Our Brands
+                  </a>
+                </div>
+              </div>
+              <div class="col-md-5 d-none d-md-flex justify-content-center">
+                <div style="font-size: 7.5rem; color: rgba(255,255,255,0.18);">
+                  <i class="bi bi-motherboard"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#orientHeroCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#orientHeroCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2 Side Highlight Banner Ads (4 Cols) -->
+    <div class="col-lg-4 d-none d-lg-flex flex-column gap-3">
+      
+      <!-- Highlight Card 1: ViewSonic Projector -->
+      <a href="{% url 'catalog:product_list' %}?category=audio-visual" class="card border-0 shadow-sm rounded-4 text-decoration-none text-white overflow-hidden flex-fill p-4 position-relative" style="background: linear-gradient(135deg, #3B0764 0%, #701A75 100%);">
+        <span class="badge bg-warning text-dark px-2.5 py-1 mb-2 align-self-start fw-bold">Commercial Projection</span>
+        <h5 class="fw-bold text-white mb-1">ViewSonic Smart Projectors</h5>
+        <p class="small text-white-50 mb-0">1080p / 4K UHD smart portable projectors with Harman Kardon sound.</p>
+        <div class="position-absolute end-0 bottom-0 p-3 opacity-25" style="font-size: 4rem;">
+          <i class="bi bi-projector"></i>
+        </div>
+      </a>
+
+      <!-- Highlight Card 2: Power Systems & Batteries -->
+      <a href="{% url 'catalog:product_list' %}?category=ups" class="card border-0 shadow-sm rounded-4 text-decoration-none text-white overflow-hidden flex-fill p-4 position-relative" style="background: linear-gradient(135deg, #4F2C70 0%, #1E1B4B 100%);">
+        <span class="badge bg-info text-dark px-2.5 py-1 mb-2 align-self-start fw-bold">Enterprise Power</span>
+        <h5 class="fw-bold text-white mb-1">Apollo & SAKO Power Systems</h5>
+        <p class="small text-white-50 mb-0">Online UPS, Inverters & AGM Deep Cycle batteries for 24/7 reliability.</p>
+        <div class="position-absolute end-0 bottom-0 p-3 opacity-25" style="font-size: 4rem;">
+          <i class="bi bi-lightning-charge"></i>
+        </div>
+      </a>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Featured Categories Grid (Matches Live Orient Categories) -->
+<div class="container-fluid px-lg-5 my-5">
+  <div class="text-center mb-4">
+    <h3 class="fw-extrabold mb-1" style="color: #4F2C70;">Featured Categories</h3>
+    <p class="text-muted small">Get Your Desired Hardware & Power Solutions from Authorized Departments</p>
+  </div>
+
+  <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-9 g-2 g-md-3">
+    {% for dept in departments %}
+      <div class="col">
+        <a href="{{ dept.get_absolute_url }}" class="card text-center p-3 h-100 border shadow-sm rounded-3 text-decoration-none product-card bg-white transition-all">
+          <div class="dept-icon mb-2 mx-auto" style="width: 46px; height: 46px; border-radius: 12px; background: #F3E8FF; color: #92278F; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+            {% if dept.icon %}<i class="bi {{ dept.icon }}"></i>{% else %}<i class="bi bi-cpu"></i>{% endif %}
+          </div>
+          <h6 class="fw-bold text-dark mb-1 small text-truncate">{{ dept.name }}</h6>
+          <small class="text-muted" style="font-size: 0.72rem;">{{ dept.products.count }} items</small>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Top Picks For You: New Arrivals vs Upcoming Products Switcher (Matches Live Orient Website) -->
+<div class="container-fluid px-lg-5 my-5">
+  <div class="text-center mb-4">
+    <h3 class="fw-extrabold mb-2" style="color: #4F2C70;">Top Picks For You</h3>
+    <div class="d-inline-flex p-1 bg-white rounded-pill border shadow-sm gap-1">
+      <button type="button" class="btn btn-sm btn-primary rounded-pill px-4 fw-bold top-picks-tab-btn active" id="btn-tab-new" onclick="switchTopPicks('new')">
+        New Arrivals
+      </button>
+      <button type="button" class="btn btn-sm btn-light rounded-pill px-4 fw-semibold top-picks-tab-btn text-muted" id="btn-tab-upcoming" onclick="switchTopPicks('upcoming')">
+        Upcoming Products
+      </button>
+    </div>
+  </div>
+
+  <!-- New Arrivals Content -->
+  <div id="pane-new-arrivals">
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 g-md-4">
+      {% for product in new_arrivals|slice:":10" %}
+        <div class="col">
+          {% include 'catalog/partials/product_card.html' with product=product %}
+        </div>
+      {% empty %}
+        <div class="col-12 text-center py-4 text-muted">No new arrivals at this time.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Upcoming Products Content -->
+  <div id="pane-upcoming-products" style="display: none;">
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 g-md-4">
+      {% for product in upcoming_products %}
+        <div class="col">
+          {% include 'catalog/partials/product_card.html' with product=product %}
+        </div>
+      {% empty %}
+        <div class="col-12 text-center py-4 text-muted">No upcoming preview items scheduled.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Flash Deals with Live Countdown (REQ-F-HP-03) -->
+{% if deal_products %}
+<div class="container-fluid px-lg-5 my-5">
+  <div class="card border-0 shadow-sm p-4 rounded-4" style="background: linear-gradient(135deg, #FDF4FF 0%, #FAE8FF 100%); border: 1.5px solid #F0ABFC !important;">
+    
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+      <div>
+        <span class="badge text-white text-uppercase px-3 py-1 mb-2 fw-bold" style="background-color: #92278F;">Deal of the Day</span>
+        <h3 class="fw-extrabold text-dark mb-0"><i class="bi bi-lightning-charge-fill text-warning"></i> Limited Time Flash Deals</h3>
+      </div>
+
+      <!-- Real-time Countdown Timer (HH:MM:SS) -->
+      <div class="d-flex align-items-center gap-2">
+        <span class="fw-bold text-dark small me-1">Offer Ends In:</span>
+        <div id="flash-deal-countdown" class="countdown-box" data-target="{{ countdown_target }}">
+          <div class="countdown-segment" style="background: #4F2C70;"><span id="cd-hours">00</span><span class="countdown-label">Hours</span></div>
+          <div class="countdown-segment" style="background: #4F2C70;"><span id="cd-mins">00</span><span class="countdown-label">Mins</span></div>
+          <div class="countdown-segment" style="background: #4F2C70;"><span id="cd-secs">00</span><span class="countdown-label">Secs</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deals Products Grid -->
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4">
+      {% for product in deal_products %}
+        <div class="col">
+          {% include 'catalog/partials/product_card.html' with product=product %}
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endif %}
+
+<!-- Authorized Partner Brands Showcase (Matches Live Orient Brand Strip) -->
+<div class="container-fluid px-lg-5 my-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h3 class="fw-extrabold mb-0" style="color: #4F2C70;">Our Authorized Brands</h3>
+      <p class="text-muted small mb-0">Official distribution partners and authorized hardware brands</p>
+    </div>
+    <a href="{% url 'catalog:brand_list' %}" class="btn btn-outline-primary btn-sm fw-semibold">
+      All Brands A-Z <i class="bi bi-arrow-right ms-1"></i>
+    </a>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+    <div class="row row-cols-3 row-cols-sm-4 row-cols-md-6 row-cols-lg-8 g-2 g-md-3 align-items-center text-center">
+      {% for b in brands|slice:":16" %}
+        <div class="col">
+          <a href="{% url 'catalog:brand_detail' slug=b.slug %}" class="p-2 border rounded-3 d-flex align-items-center justify-content-center text-decoration-none brand-card h-100" style="height: 75px;" title="{{ b.name }}">
+            {% if b.logo_url or b.logo %}
+              <img src="{{ b.logo_display_url }}" alt="{{ b.name }}" class="img-fluid" style="max-height: 48px; max-width: 100%; object-fit: contain;">
+            {% else %}
+              <span class="fw-bold small text-dark">{{ b.name }}</span>
+            {% endif %}
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTopPicks(tab) {
+  const newBtn = document.getElementById('btn-tab-new');
+  const upBtn = document.getElementById('btn-tab-upcoming');
+  const newPane = document.getElementById('pane-new-arrivals');
+  const upPane = document.getElementById('pane-upcoming-products');
+
+  if (tab === 'new') {
+    newBtn.classList.add('btn-primary', 'active');
+    newBtn.classList.remove('btn-light', 'text-muted');
+    upBtn.classList.add('btn-light', 'text-muted');
+    upBtn.classList.remove('btn-primary', 'active');
+    newPane.style.display = 'block';
+    upPane.style.display = 'none';
+  } else {
+    upBtn.classList.add('btn-primary', 'active');
+    upBtn.classList.remove('btn-light', 'text-muted');
+    newBtn.classList.add('btn-light', 'text-muted');
+    newBtn.classList.remove('btn-primary', 'active');
+    newPane.style.display = 'none';
+    upPane.style.display = 'block';
+  }
+}
+</script>
+
+{% endblock %}
+

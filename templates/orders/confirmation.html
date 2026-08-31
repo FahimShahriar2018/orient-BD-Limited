@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}Order Confirmed | Orient Computers & Engineering{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      
+      <!-- Confirmation Master Card -->
+      <div class="card shadow-sm border-0 p-4 p-md-5 text-center mb-4">
+        
+        <div class="mx-auto mb-3" style="width: 64px; height: 64px; border-radius: 50%; background: #DCFCE7; color: #16A34A; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+          <i class="bi bi-check2-circle"></i>
+        </div>
+
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 fs-6 mb-2 mx-auto">
+          Order Successfully Placed
+        </span>
+
+        <h2 class="fw-extrabold text-dark mb-2">Thank you, {{ order.shipping_address.fullName }}!</h2>
+        <p class="text-muted small mb-4">
+          Your hardware order has been logged into our enterprise retail fulfillment system. Our fulfillment engineers are inspecting the components before courier dispatch.
+        </p>
+
+        <!-- Tracking Number Callout -->
+        <div class="p-3 bg-light rounded-3 border mb-4 text-center">
+          <span class="text-muted small d-block">Your Unique Tracking Code:</span>
+          <strong class="font-monospace fs-3 text-primary letter-spacing-1">{{ order.tracking_number }}</strong>
+          <div class="text-muted small mt-1">Please save this tracking code to monitor delivery milestones or claim warranty.</div>
+        </div>
+
+        <!-- Quick Summary Details Grid -->
+        <div class="row g-3 text-start small mb-4">
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3 border h-100">
+              <strong class="d-block text-dark mb-1">Delivery Destination</strong>
+              <div class="text-secondary">{{ order.shipping_address.street }}</div>
+              <div class="text-secondary">{{ order.shipping_address.district }}, {{ order.shipping_address.division }}</div>
+              <div class="text-secondary">Phone: {{ order.shipping_address.phone }}</div>
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-3 border h-100">
+              <strong class="d-block text-dark mb-1">Payment & Invoice</strong>
+              <div class="text-secondary">Method: <strong class="text-uppercase text-dark">{{ order.payment_method }}</strong></div>
+              {% if order.payment_result.transactionId %}
+                <div class="text-secondary">TrxID: <code class="fw-bold">{{ order.payment_result.transactionId }}</code></div>
+              {% endif %}
+              <div class="text-secondary mt-1">Grand Total: <strong class="text-primary fs-6">{{ order.total_price|bdt }}</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Action Buttons -->
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+          <a href="{% url 'orders:track_order' %}?tracking_number={{ order.tracking_number }}&phone={{ order.shipping_address.phone }}" class="btn btn-primary fw-bold shadow-sm">
+            <i class="bi bi-truck me-1"></i> Track Live Delivery Status
+          </a>
+          <a href="{% url 'orders:print_invoice' tracking_number=order.tracking_number %}" target="_blank" class="btn btn-outline-dark fw-bold">
+            <i class="bi bi-printer me-1"></i> Print Tax Invoice
+          </a>
+          <a href="{% url 'core:home' %}" class="btn btn-outline-secondary">
+            Return to Storefront
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

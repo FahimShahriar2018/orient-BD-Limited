@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}8 Showrooms & Regional Branch Network | Orient Computers & Engineering{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb bg-white p-2 rounded-3 shadow-sm border small">
+      <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-decoration-none text-primary"><i class="bi bi-house-door me-1"></i>Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Showroom Branches</li>
+    </ol>
+  </nav>
+
+  <div class="text-center mb-5">
+    <span class="badge text-white px-3 py-1.5 fs-6 mb-2 fw-bold" style="background-color: #4F2C70;">
+      <i class="bi bi-shop me-1"></i> 8 Physical Showrooms Nationwide
+    </span>
+    <h2 class="fw-extrabold text-dark">Our Flagship Showrooms & Experience Centers</h2>
+    <p class="text-muted small">Visit our physical sales and support branches across Dhaka, Chattogram, and Sylhet for live testing, corporate consultation, and instant RMA warranty claims.</p>
+  </div>
+
+  <div class="row g-4 justify-content-center">
+    {% for branch in branches %}
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm border rounded-4 h-100 p-4 bg-white {% if branch.is_flagship %}border-top border-4{% endif %}" style="{% if branch.is_flagship %}border-top-color: #92278F !important;{% endif %}">
+          
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 class="fw-bold mb-0" style="color: #4F2C70;">{{ branch.name }}</h5>
+            {% if branch.is_flagship %}
+              <span class="badge text-white" style="background-color: #92278F;">Flagship</span>
+            {% endif %}
+          </div>
+
+          <p class="text-secondary small mb-3">
+            <i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ branch.address }}
+          </p>
+
+          <ul class="list-unstyled small text-muted mb-4">
+            <li class="mb-2"><i class="bi bi-telephone-fill me-2" style="color: #92278F;"></i> <strong class="text-dark">{{ branch.phone }}</strong></li>
+            {% if branch.email %}
+              <li class="mb-2"><i class="bi bi-envelope-fill text-info me-2"></i> {{ branch.email }}</li>
+            {% endif %}
+            <li class="mb-2"><i class="bi bi-clock-fill text-success me-2"></i> {{ branch.hours }}</li>
+            {% if branch.off_day %}
+              <li><i class="bi bi-calendar-x-fill text-danger me-2"></i> Weekly Off: <strong class="text-danger">{{ branch.off_day }}</strong></li>
+            {% endif %}
+          </ul>
+
+          <div class="mt-auto">
+            {% if branch.maps_url %}
+              <a href="{{ branch.maps_url }}" target="_blank" class="btn btn-outline-primary btn-sm w-100 fw-semibold">
+                <i class="bi bi-geo-alt me-1"></i> View on Google Maps
+              </a>
+            {% else %}
+              <a href="tel:{{ branch.phone|cut:' ' }}" class="btn btn-purple btn-sm w-100 fw-semibold">
+                <i class="bi bi-telephone-fill me-1"></i> Call Branch
+              </a>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center py-4 text-muted">
+        No branches registered yet. Run seed command.
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+

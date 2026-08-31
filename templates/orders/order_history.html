@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}Order History | Orient Computers & Engineering{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'accounts:dashboard' %}" class="text-decoration-none">Account</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Purchase History</li>
+    </ol>
+  </nav>
+
+  <h3 class="fw-extrabold text-dark mb-4">Your Purchase & Order History</h3>
+
+  {% if orders %}
+    <div class="card shadow-sm border-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light">
+            <tr>
+              <th>Tracking Number</th>
+              <th>Placed Date</th>
+              <th>Hardware Items</th>
+              <th>Payment Channel</th>
+              <th>Total Amount</th>
+              <th>Fulfillment Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr>
+                <td>
+                  <strong class="font-monospace text-primary">{{ order.tracking_number }}</strong>
+                </td>
+                <td class="text-muted">{{ order.created_at|date:"M d, Y" }}</td>
+                <td>
+                  <span class="fw-semibold text-dark">{{ order.items.count }} item{{ order.items.count|pluralize }}</span>
+                  <small class="text-muted d-block text-truncate" style="max-width: 250px;">
+                    {% for item in order.items.all %}{{ item.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                  </small>
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark border text-uppercase">{{ order.payment_method }}</span>
+                </td>
+                <td class="fw-bold font-monospace text-dark fs-6">{{ order.total_price|bdt }}</td>
+                <td>
+                  {% if order.order_status == 'Delivered' %}
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Delivered</span>
+                  {% elif order.order_status == 'Shipped' %}
+                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1">Shipped</span>
+                  {% elif order.order_status == 'Processing' %}
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">Processing</span>
+                  {% elif order.order_status == 'Confirmed' %}
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">Confirmed</span>
+                  {% elif order.order_status == 'Cancelled' %}
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Cancelled</span>
+                  {% else %}
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">Pending</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'orders:order_detail' tracking_number=order.tracking_number %}" class="btn btn-sm btn-outline-primary fw-semibold me-1">
+                    Details
+                  </a>
+                  <a href="{% url 'orders:print_invoice' tracking_number=order.tracking_number %}" target="_blank" class="btn btn-sm btn-outline-dark" title="Print Invoice">
+                    <i class="bi bi-printer"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="card shadow-sm border-0 p-5 text-center my-4">
+      <i class="bi bi-receipt display-1 text-muted mb-3"></i>
+      <h4 class="fw-bold text-dark">No Orders Found</h4>
+      <p class="text-muted small mb-4">You have not placed any orders with this account yet.</p>
+      <div>
+        <a href="{% url 'catalog:product_list' %}" class="btn btn-primary px-4 fw-bold shadow-sm">
+          Explore Hardware Store
+        </a>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

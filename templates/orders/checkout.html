@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}Checkout | Orient Computers & Engineering{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'cart:cart_detail' %}" class="text-decoration-none">Cart</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+    </ol>
+  </nav>
+
+  <h3 class="fw-extrabold text-dark mb-4">Secure Checkout & Delivery Details</h3>
+
+  <form action="{% url 'orders:place_order' %}" method="POST" id="checkout-form">
+    {% csrf_token %}
+
+    <div class="row g-4">
+      
+      <!-- Left Column: Checkout Funnel Steps (REQ-F-CHK-01 to REQ-F-CHK-04) -->
+      <div class="col-lg-8">
+        
+        <!-- Step 1: Recipient Contact & Delivery Destination -->
+        <div class="card shadow-sm border-0 p-4 mb-4">
+          <div class="d-flex align-items-center mb-3">
+            <span class="badge bg-primary rounded-circle me-2 p-2" style="width: 32px; height: 32px;">1</span>
+            <h5 class="fw-bold text-dark mb-0">Recipient & Delivery Destination</h5>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Recipient Full Name <span class="text-danger">*</span></label>
+              {{ form.full_name }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Mobile Phone Number <span class="text-danger">*</span></label>
+              {{ form.phone }}
+              <small class="text-muted" style="font-size: 0.72rem;">Required for delivery courier OTP and dispatch SMS.</small>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label small fw-bold">Email Address <span class="text-danger">*</span></label>
+              {{ form.email }}
+              <small class="text-muted" style="font-size: 0.72rem;">We'll send the digital VAT invoice and tracking code here.</small>
+            </div>
+
+            <!-- BD Administrative Cascade: Division & District (REQ-F-CHK-02) -->
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Division <span class="text-danger">*</span></label>
+              {{ form.division }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">District <span class="text-danger">*</span></label>
+              <select name="district" id="id_district" class="form-select" data-current="{{ form.district.value|default:'' }}">
+                <option value="">Select Division First</option>
+              </select>
+            </div>
+
+            <div class="col-md-8">
+              <label class="form-label small fw-bold">Street Address / House / Road / Area <span class="text-danger">*</span></label>
+              {{ form.street_address }}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Postal Code (Optional)</label>
+              {{ form.postal_code }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label small fw-bold">Delivery Instructions & Landmarks (Optional)</label>
+              {{ form.delivery_notes }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Shipping Method Computation (REQ-F-CHK-03) -->
+        <div class="card shadow-sm border-0 p-4 mb-4">
+          <div class="d-flex align-items-center mb-3">
+            <span class="badge bg-primary rounded-circle me-2 p-2" style="width: 32px; height: 32px;">2</span>
+            <h5 class="fw-bold text-dark mb-0">Shipping & Courier Method</h5>
+          </div>
+
+          <div class="list-group">
+            {% for choice in form.shipping_method %}
+              <label class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3 cursor-pointer">
+                {{ choice.tag }}
+                <div class="flex-grow-1">
+                  <span class="fw-bold text-dark d-block">{{ choice.choice_label }}</span>
+                </div>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Step 3: Payment Channel & Bangladeshi MFS Integration (REQ-F-CHK-04) -->
+        <div class="card shadow-sm border-0 p-4 mb-4">
+          <div class="d-flex align-items-center mb-3">
+            <span class="badge bg-primary rounded-circle me-2 p-2" style="width: 32px; height: 32px;">3</span>
+            <h5 class="fw-bold text-dark mb-0">Payment Method</h5>
+          </div>
+
+          <div class="list-group mb-3">
+            {% for choice in form.payment_method %}
+              <label class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3 cursor-pointer">
+                {{ choice.tag }}
+                <div class="flex-grow-1">
+                  <span class="fw-bold text-dark d-block">{{ choice.choice_label }}</span>
+                </div>
+              </label>
+            {% endfor %}
+          </div>
+
+          <!-- MFS (bKash/Nagad) Simulated TrxID Entry Box -->
+          <div id="mfs-details-section" class="p-4 bg-light rounded-3 border mt-3" style="display: none;">
+            <div class="alert alert-info border-0 mb-3 small">
+              <strong class="d-block mb-1"><i class="bi bi-info-circle-fill me-1"></i> <span id="mfs-brand-label">bKash</span> Merchant Payment Instructions:</strong>
+              1. Open your <span id="mfs-brand-label-2">bKash</span> or Nagad App and select <strong>Make Payment</strong>.<br>
+              2. Enter Orient Computers Merchant Account: <strong>01711-000001</strong><br>
+              3. Enter the exact Order Total as Amount.<br>
+              4. Copy the 10-character <strong>Transaction ID (TrxID)</strong> and paste it below.
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Sender Mobile Number <span class="text-danger">*</span></label>
+                {{ form.sender_number }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">MFS Transaction ID (TrxID) <span class="text-danger">*</span></label>
+                {{ form.trx_id }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Online Bank / Credit Card Entry Box -->
+          <div id="card-details-section" class="p-4 bg-light rounded-3 border mt-3" style="display: none;">
+            <div class="alert alert-primary border-0 mb-3 small">
+              <strong class="d-block mb-1"><i class="bi bi-credit-card-2-front-fill me-1"></i> Online Bank & Card Payment Gateway:</strong>
+              We accept Visa, Mastercard, DBBL Nexus, AMEX, and Bangladeshi Internet Banking (City Touch, BRAC Bank, Islami Bank). 256-Bit SSL Encrypted.
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label small fw-bold">Card Number <span class="text-danger">*</span></label>
+                {{ form.card_number }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Cardholder Name <span class="text-danger">*</span></label>
+                {{ form.card_name }}
+              </div>
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold">Expiry Date <span class="text-danger">*</span></label>
+                {{ form.card_expiry }}
+              </div>
+              <div class="col-md-3 col-6">
+                <label class="form-label small fw-bold">CVV / CVC <span class="text-danger">*</span></label>
+                {{ form.card_cvv }}
+              </div>
+              <div class="col-md-12">
+                <label class="form-label small fw-bold">Bank Name / Card Network (Optional)</label>
+                {{ form.card_bank }}
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Right Column: Sticky Basket Summary -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm border-0 p-4 sticky-lg-top" style="top: 80px;" id="order-summary-box" data-subtotal="{{ subtotal }}" data-discount="{{ discount }}">
+          <h5 class="fw-bold text-dark mb-3">Order Summary ({{ cart.get_item_count }})</h5>
+
+          <!-- Itemized Snapshot List -->
+          <div class="overflow-y-auto mb-3" style="max-height: 220px;">
+            {% for item in cart %}
+              <div class="d-flex justify-content-between align-items-center mb-2 small pb-2 border-bottom">
+                <div class="text-truncate me-2">
+                  <strong class="text-dark d-block text-truncate">{{ item.product.name }}</strong>
+                  <span class="text-muted">{{ item.qty }} &times; {{ item.price|bdt }}</span>
+                </div>
+                <span class="fw-bold font-monospace text-dark text-nowrap">{{ item.total|bdt }}</span>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex justify-content-between mb-2 small text-secondary">
+            <span>Items Subtotal:</span>
+            <span class="font-monospace text-dark">{{ subtotal|bdt }}</span>
+          </div>
+
+          {% if discount > 0 %}
+            <div class="d-flex justify-content-between mb-2 small text-success">
+              <span>Coupon Discount:</span>
+              <span class="font-monospace fw-bold">- {{ discount|bdt }}</span>
+            </div>
+          {% endif %}
+
+          <div class="d-flex justify-content-between mb-2 small text-secondary">
+            <span>Delivery Courier Fee:</span>
+            <span class="font-monospace text-dark" id="summary-shipping-fee">
+              {% if shipping_price == 0 %}FREE{% else %}৳ {{ shipping_price|floatformat:0 }}{% endif %}
+            </span>
+          </div>
+
+          <hr class="my-3">
+
+          <div class="d-flex justify-content-between align-items-baseline mb-4">
+            <span class="fw-bold fs-6 text-dark">Estimated Grand Total:</span>
+            <span class="fw-extrabold fs-4 text-primary font-monospace" id="summary-grand-total">{{ total|bdt }}</span>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">
+              <i class="bi bi-shield-lock-fill me-1"></i> Place Order Now
+            </button>
+          </div>
+
+          <div class="mt-3 text-center text-muted small" style="font-size: 0.72rem;">
+            By placing order, you agree to Orient Computers & Engineering's warranty RMA and retail terms.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+</div>
+{% endblock %}

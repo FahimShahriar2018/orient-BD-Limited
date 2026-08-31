@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}Shopping Basket | Orient Computers & Engineering{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Shopping Basket</li>
+    </ol>
+  </nav>
+
+  <h3 class="fw-extrabold text-dark mb-4">Your Shopping Basket ({{ cart.get_item_count }} Item{{ cart.get_item_count|pluralize }})</h3>
+
+  {% if cart_count > 0 %}
+    <div class="row g-4">
+      
+      <!-- Left Column: Itemized Cart Table (REQ-F-CART-01) -->
+      <div class="col-lg-8">
+        
+        <!-- Free Shipping Progress Meter (REQ-F-CART-04) -->
+        <div class="card shadow-sm border-0 p-3 mb-4 bg-primary-subtle border-primary-subtle">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-bold text-primary-emphasis small">
+              {% if amount_needed_for_free_shipping > 0 %}
+                Add <strong class="text-danger">{{ amount_needed_for_free_shipping|bdt }}</strong> more to unlock <strong>FREE Nationwide Delivery</strong>!
+              {% else %}
+                <i class="bi bi-check-circle-fill text-success me-1"></i> You have unlocked <strong>FREE Nationwide Delivery</strong>!
+              {% endif %}
+            </span>
+            <span class="badge bg-primary">Threshold: ৳ 50,000</span>
+          </div>
+          <div class="progress" style="height: 8px;">
+            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ free_shipping_progress }}%;" aria-valuenow="{{ free_shipping_progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light small">
+                <tr>
+                  <th style="width: 45%;">Hardware Component</th>
+                  <th class="text-center" style="width: 15%;">Unit Price</th>
+                  <th class="text-center" style="width: 20%;">Quantity</th>
+                  <th class="text-end" style="width: 15%;">Line Total</th>
+                  <th style="width: 5%;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in cart %}
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-3">
+                        <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}" style="width: 60px; height: 60px; object-fit: contain; background: #f8fafc; border-radius: 6px; padding: 4px;">
+                        <div>
+                          <a href="{{ item.product.get_absolute_url }}" class="text-dark text-decoration-none fw-bold small d-block">
+                            {{ item.product.name }}
+                          </a>
+                          <small class="text-muted font-monospace">SKU: {{ item.product.sku }}</small>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td class="text-center font-monospace small">{{ item.price|bdt }}</td>
+
+                    <!-- Quantity Stepper Form (REQ-F-CART-02) -->
+                    <td class="text-center">
+                      <form action="{% url 'cart:cart_update' %}" method="POST" class="d-inline-flex align-items-center justify-content-center">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                        <div class="input-group input-group-sm" style="width: 110px;">
+                          <button type="submit" name="qty" value="{{ item.qty|add:'-1' }}" class="btn btn-outline-secondary" {% if item.qty <= 1 %}disabled{% endif %}>-</button>
+                          <input type="text" class="form-control text-center font-monospace bg-white" value="{{ item.qty }}" readonly>
+                          <button type="submit" name="qty" value="{{ item.qty|add:'1' }}" class="btn btn-outline-secondary" {% if item.qty >= item.product.count_in_stock %}disabled{% endif %}>+</button>
+                        </div>
+                      </form>
+                    </td>
+
+                    <td class="text-end fw-extrabold text-primary font-monospace">{{ item.total|bdt }}</td>
+
+                    <td class="text-end">
+                      <form action="{% url 'cart:cart_remove' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Remove item">
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center">
+            <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+            </a>
+            <span class="text-muted small">Prices include standard retail VAT/Tax</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Order Summary & Voucher Engine (REQ-F-CART-03) -->
+      <div class="col-lg-4">
+        
+        <!-- Voucher Promo Code Box -->
+        <div class="card shadow-sm border-0 p-3 mb-4">
+          <h6 class="fw-bold text-dark mb-2"><i class="bi bi-ticket-perforated text-primary me-1"></i> Have a Promo Coupon?</h6>
+          {% if cart.coupon_code %}
+            <div class="d-flex justify-content-between align-items-center p-2 bg-success-subtle border border-success-subtle rounded">
+              <div>
+                <span class="badge bg-success font-monospace me-1">{{ cart.coupon_code }}</span>
+                <small class="text-success fw-bold">Coupon Active (-{{ cart.discount_amount|bdt }})</small>
+              </div>
+              <a href="{% url 'cart:remove_coupon' %}" class="text-danger small text-decoration-none fw-bold"><i class="bi bi-x-circle"></i> Remove</a>
+            </div>
+          {% else %}
+            <form action="{% url 'cart:apply_coupon' %}" method="POST" class="d-flex gap-2">
+              {% csrf_token %}
+              <input type="text" name="code" class="form-control form-control-sm text-uppercase font-monospace" placeholder="e.g. ORIENT10" required>
+              <button type="submit" class="btn btn-dark btn-sm fw-bold">Apply</button>
+            </form>
+            <div class="mt-2 text-muted" style="font-size: 0.72rem;">Try: <code>ORIENT10</code> (10% off) or <code>ORIENT500</code> (৳500 off)</div>
+          {% endif %}
+        </div>
+
+        <!-- Basket Summary Box -->
+        <div class="card shadow-sm border-0 p-4 sticky-lg-top" style="top: 80px;">
+          <h5 class="fw-bold text-dark mb-3">Order Summary</h5>
+          
+          <div class="d-flex justify-content-between mb-2 small text-secondary">
+            <span>Hardware Subtotal:</span>
+            <span class="font-monospace text-dark">{{ subtotal|bdt }}</span>
+          </div>
+
+          {% if discount > 0 %}
+            <div class="d-flex justify-content-between mb-2 small text-success">
+              <span>Coupon Discount:</span>
+              <span class="font-monospace fw-bold">- {{ discount|bdt }}</span>
+            </div>
+          {% endif %}
+
+          <div class="d-flex justify-content-between mb-2 small text-secondary">
+            <span>Estimated Shipping:</span>
+            <span class="text-muted">Calculated at Checkout</span>
+          </div>
+
+          <hr class="my-3">
+
+          <div class="d-flex justify-content-between align-items-baseline mb-4">
+            <span class="fw-bold fs-6 text-dark">Estimated Total:</span>
+            <span class="fw-extrabold fs-4 text-primary font-monospace">{{ total|bdt }}</span>
+          </div>
+
+          <div class="d-grid gap-2">
+            {% if user.is_authenticated %}
+              <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-lg fw-bold shadow-sm">
+                Proceed to Checkout <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            {% else %}
+              <a href="{% url 'accounts:login' %}?next={% url 'orders:checkout' %}" class="btn btn-primary btn-lg fw-bold shadow-sm">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Checkout <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+              <div class="alert alert-warning py-2 px-3 mt-2 mb-0 small text-center">
+                <i class="bi bi-shield-lock-fill me-1"></i> Sign in or create an account to make a purchase. Your cart items are preserved!
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="mt-3 text-center text-muted small" style="font-size: 0.75rem;">
+            <i class="bi bi-lock-fill text-success me-1"></i> Safe & Secure 256-Bit SSL Checkout
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  {% else %}
+    <div class="card shadow-sm border-0 p-5 text-center my-4">
+      <i class="bi bi-cart-x display-1 text-muted mb-3"></i>
+      <h4 class="fw-bold text-dark">Your Shopping Basket is Empty</h4>
+      <p class="text-muted small mb-4">You haven't added any computer components or hardware to your cart yet.</p>
+      <div>
+        <a href="{% url 'catalog:product_list' %}" class="btn btn-primary px-4 fw-bold shadow-sm">
+          <i class="bi bi-grid me-1"></i> Explore Hardware Catalog
+        </a>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

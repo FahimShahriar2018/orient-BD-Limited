@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}Create an Account | Orient Computers & Engineering{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      
+      <div class="card shadow-sm border-0 p-4 p-md-5">
+        
+        <div class="text-center mb-4">
+          <div class="logo-icon mx-auto mb-2" style="width: 48px; height: 48px; border-radius: 10px; background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+            <i class="bi bi-person-plus-fill"></i>
+          </div>
+          <h3 class="fw-extrabold text-dark mb-1">Create Customer Account</h3>
+          <p class="text-muted small">Register to track your shipments, save wishlists, and manage orders</p>
+        </div>
+
+        <form method="POST" action="{% url 'accounts:register' %}">
+          {% csrf_token %}
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">First Name <span class="text-danger">*</span></label>
+              {{ form.first_name }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Last Name <span class="text-danger">*</span></label>
+              {{ form.last_name }}
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">Username <span class="text-danger">*</span></label>
+              {{ form.username }}
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">Email Address <span class="text-danger">*</span></label>
+              {{ form.email }}
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">Mobile Phone <span class="text-danger">*</span></label>
+              {{ form.phone }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Password <span class="text-danger">*</span></label>
+              {{ form.password1 }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Confirm Password <span class="text-danger">*</span></label>
+              {{ form.password2 }}
+            </div>
+          </div>
+
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">
+              Create My Account
+            </button>
+          </div>
+        </form>
+
+        <div class="text-center mt-3 pt-3 border-top small">
+          <span class="text-muted">Already registered?</span>
+          <a href="{% url 'accounts:login' %}" class="fw-bold text-primary text-decoration-none ms-1">Sign In</a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

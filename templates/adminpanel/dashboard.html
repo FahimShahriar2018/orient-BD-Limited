@@ -1,0 +1,232 @@
+{% extends 'adminpanel/base_admin.html' %}
+{% load static orient_tags %}
+
+{% block title %}Executive Analytics Dashboard | Orient Back-Office{% endblock %}
+{% block page_title %}Executive Analytics & Retail Overview{% endblock %}
+
+{% block admin_content %}
+
+<!-- 4 Executive KPI Summary Cards (REQ-F-ADM-01) -->
+<div class="row g-4 mb-4">
+  
+  <div class="col-md-6 col-xl-3">
+    <div class="card shadow-sm border-0 p-3 bg-white h-100">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="text-muted small fw-bold text-uppercase">Gross Revenue</span>
+        <div class="p-2 bg-success bg-opacity-10 text-success rounded-3">
+          <i class="bi bi-cash-stack fs-5"></i>
+        </div>
+      </div>
+      <h3 class="fw-extrabold text-dark mb-0 font-monospace">{{ total_sales|bdt }}</h3>
+      <small class="text-success fw-semibold"><i class="bi bi-graph-up-arrow me-1"></i> Lifetime Gross Sales</small>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-xl-3">
+    <div class="card shadow-sm border-0 p-3 bg-white h-100">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="text-muted small fw-bold text-uppercase">Total Orders</span>
+        <div class="p-2 bg-primary bg-opacity-10 text-primary rounded-3">
+          <i class="bi bi-bag-check fs-5"></i>
+        </div>
+      </div>
+      <h3 class="fw-extrabold text-dark mb-0 font-monospace">{{ total_orders }}</h3>
+      <small class="text-primary fw-semibold"><i class="bi bi-box-seam me-1"></i> Processed in System</small>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-xl-3">
+    <div class="card shadow-sm border-0 p-3 bg-white h-100">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="text-muted small fw-bold text-uppercase">Active Hardware SKUs</span>
+        <div class="p-2 bg-warning bg-opacity-10 text-warning rounded-3">
+          <i class="bi bi-cpu fs-5"></i>
+        </div>
+      </div>
+      <h3 class="fw-extrabold text-dark mb-0 font-monospace">{{ active_skus }}</h3>
+      <small class="text-warning fw-semibold"><i class="bi bi-check-circle me-1"></i> In-Stock Inventory</small>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-xl-3">
+    <div class="card shadow-sm border-0 p-3 bg-white h-100">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="text-muted small fw-bold text-uppercase">Registered Users</span>
+        <div class="p-2 bg-info bg-opacity-10 text-info rounded-3">
+          <i class="bi bi-people fs-5"></i>
+        </div>
+      </div>
+      <h3 class="fw-extrabold text-dark mb-0 font-monospace">{{ total_customers }}</h3>
+      <small class="text-info fw-semibold"><i class="bi bi-person-check me-1"></i> Customer Accounts</small>
+    </div>
+  </div>
+
+</div>
+
+<!-- 2 Executive Charts: 7-Day Revenue Velocity & Order Pipeline Status (REQ-F-ADM-01) -->
+<div class="row g-4 mb-4">
+  
+  <!-- 7-Day Revenue Velocity Bar Chart -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 p-4 bg-white h-100">
+      <h5 class="fw-bold text-dark mb-1">7-Day Sales Velocity (BDT)</h5>
+      <p class="text-muted small mb-4">Daily gross transaction volume over the past week</p>
+      <div style="height: 280px;">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Status Doughnut Breakdown -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 p-4 bg-white h-100">
+      <h5 class="fw-bold text-dark mb-1">Fulfillment Distribution</h5>
+      <p class="text-muted small mb-4">Live breakdown by status stage</p>
+      <div style="height: 280px; position: relative;">
+        <canvas id="statusChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Recent Orders & Inventory Alerts Row -->
+<div class="row g-4">
+  
+  <!-- Recent Pipeline Activity Table -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 bg-white">
+      <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-dark">Latest Customer Orders</h5>
+        <a href="{% url 'adminpanel:orders' %}" class="btn btn-outline-primary btn-sm">Manage All Orders</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light">
+            <tr>
+              <th>Tracking Code</th>
+              <th>Customer</th>
+              <th>Channel / TrxID</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th class="text-end">Manage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in recent_orders %}
+              <tr>
+                <td><strong class="font-monospace text-primary">{{ order.tracking_number }}</strong></td>
+                <td>{{ order.shipping_address.fullName }}</td>
+                <td>
+                  <span class="badge bg-light text-dark border text-uppercase">{{ order.payment_method }}</span>
+                  {% if order.payment_result.transactionId %}
+                    <small class="d-block text-danger font-monospace">{{ order.payment_result.transactionId }}</small>
+                  {% endif %}
+                </td>
+                <td class="fw-bold font-monospace text-dark">{{ order.total_price|bdt }}</td>
+                <td>
+                  <span class="badge bg-primary-subtle text-primary border">{{ order.order_status }}</span>
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'adminpanel:order_detail' tracking_number=order.tracking_number %}" class="btn btn-sm btn-outline-primary">Inspect</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted">No recent orders.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Low-Stock Alerts Card (REQ-F-ADM-02) -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 bg-white">
+      <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> Low-Stock Warning</h5>
+        <a href="{% url 'adminpanel:products' %}?stock=low" class="btn btn-outline-danger btn-sm">View Low Stock</a>
+      </div>
+      <div class="card-body p-3">
+        {% for prod in low_stock_products %}
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <div class="text-truncate me-2">
+              <strong class="d-block text-dark small text-truncate">{{ prod.name }}</strong>
+              <small class="text-muted font-monospace">SKU: {{ prod.sku }}</small>
+            </div>
+            <span class="badge bg-danger rounded-pill px-2.5 py-1">
+              {% if prod.count_in_stock == 0 %}OUT OF STOCK{% else %}Only {{ prod.count_in_stock }} Left{% endif %}
+            </span>
+          </div>
+        {% empty %}
+          <p class="text-muted small mb-0 text-center py-3">All hardware inventory levels are healthy.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_admin_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // 1. Revenue Velocity Bar Chart
+  const daysLabels = JSON.parse('{{ days_labels_json|safe }}');
+  const revenueData = JSON.parse('{{ revenue_data_json|safe }}');
+
+  const revCtx = document.getElementById('revenueChart').getContext('2d');
+  new Chart(revCtx, {
+    type: 'bar',
+    data: {
+      labels: daysLabels,
+      datasets: [{
+        label: 'Daily Gross Sales (BDT)',
+        data: revenueData,
+        backgroundColor: '#2563EB',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) { return '৳ ' + value.toLocaleString(); }
+          }
+        }
+      }
+    }
+  });
+
+  // 2. Order Status Breakdown Doughnut Chart
+  const statusData = JSON.parse('{{ status_counts_json|safe }}');
+  const statusCtx = document.getElementById('statusChart').getContext('2d');
+  new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(statusData),
+      datasets: [{
+        data: Object.values(statusData),
+        backgroundColor: ['#64748B', '#2563EB', '#F59E0B', '#06B6D4', '#10B981'],
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

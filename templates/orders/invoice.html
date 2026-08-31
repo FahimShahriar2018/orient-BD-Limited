@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Commercial Tax Invoice | Orient Computers & Engineering</title>
+  {% load static orient_tags %}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/orient.css' %}">
+  <style>
+    body { background-color: #F8FAFC; }
+    .printable-invoice {
+      max-width: 850px;
+      margin: 30px auto;
+      background: #FFFFFF;
+      padding: 40px;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Print Trigger Action Bar (Hidden on Print) -->
+  <div class="container text-center my-3 no-print">
+    <button onclick="window.print();" class="btn btn-primary fw-bold shadow-sm me-2">
+      Print Official Tax Invoice
+    </button>
+    <a href="{% url 'core:home' %}" class="btn btn-outline-secondary">
+      Return to Store
+    </a>
+  </div>
+
+  <!-- Printable Invoice Document (REQ-F-ORD-02) -->
+  <div class="printable-invoice">
+    
+    <!-- Invoice Header -->
+    <div class="row align-items-center pb-4 mb-4 border-bottom">
+      <div class="col-7">
+        <h3 class="fw-extrabold text-primary mb-0">ORIENT COMPUTERS & ENGINEERING</h3>
+        <p class="text-muted small mb-0">
+          Level 4, Orient Plaza, 32 Motijheel Commercial Area, Dhaka-1000, Bangladesh<br>
+          Hotline: +880 1711-000001 | Email: support@orientcomputers.com.bd<br>
+          BIN / VAT Reg: 001928374-0101
+        </p>
+      </div>
+      <div class="col-5 text-end">
+        <h4 class="fw-bold text-dark text-uppercase mb-1">Commercial Invoice</h4>
+        <div class="text-muted small">Tracking #: <strong class="text-primary font-monospace">{{ order.tracking_number }}</strong></div>
+        <div class="text-muted small">Date: {{ order.created_at|date:"F d, Y" }}</div>
+      </div>
+    </div>
+
+    <!-- Bill To / Ship To Grid -->
+    <div class="row mb-4 small">
+      <div class="col-6">
+        <h6 class="fw-bold text-dark mb-1">BILLED / SHIPPED TO:</h6>
+        <div class="fw-bold">{{ order.shipping_address.fullName }}</div>
+        <div>{{ order.shipping_address.street }}</div>
+        <div>{{ order.shipping_address.district }}, {{ order.shipping_address.division }}</div>
+        <div>Mobile: <strong>{{ order.shipping_address.phone }}</strong></div>
+        <div>Email: {{ order.shipping_address.email }}</div>
+      </div>
+
+      <div class="col-6 text-end">
+        <h6 class="fw-bold text-dark mb-1">PAYMENT & SHIPPING DETAILS:</h6>
+        <div>Payment Channel: <strong class="text-uppercase">{{ order.payment_method }}</strong></div>
+        {% if order.payment_result.transactionId %}
+          <div>MFS TrxID: <code>{{ order.payment_result.transactionId }}</code></div>
+        {% endif %}
+        <div>Shipping Method: {{ order.get_shipping_method_display }}</div>
+        <div>Status: <span class="badge bg-dark">{{ order.order_status }}</span></div>
+      </div>
+    </div>
+
+    <!-- Itemized Hardware Matrix Table (REQ-F-ORD-02) -->
+    <table class="table table-bordered align-middle small mb-4">
+      <thead class="table-light">
+        <tr>
+          <th style="width: 5%;">#</th>
+          <th style="width: 50%;">Hardware Description & Official Warranty</th>
+          <th class="text-center" style="width: 15%;">Unit Price</th>
+          <th class="text-center" style="width: 10%;">Qty</th>
+          <th class="text-end" style="width: 20%;">Total (BDT)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order.items.all %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+              <strong class="text-dark">{{ item.name }}</strong>
+              <small class="text-muted d-block">SKU: {{ item.product.sku }} | Warranty: {{ item.product.warranty }}</small>
+            </td>
+            <td class="text-center font-monospace">{{ item.price|bdt }}</td>
+            <td class="text-center fw-bold">{{ item.qty }}</td>
+            <td class="text-end font-monospace fw-bold">{{ item.line_total|bdt }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4" class="text-end fw-bold">Items Subtotal:</td>
+          <td class="text-end font-monospace fw-bold">{{ order.items_price|bdt }}</td>
+        </tr>
+        {% if order.discount_amount > 0 %}
+          <tr class="text-success">
+            <td colspan="4" class="text-end fw-bold">Promo Coupon Discount:</td>
+            <td class="text-end font-monospace fw-bold">- {{ order.discount_amount|bdt }}</td>
+          </tr>
+        {% endif %}
+        <tr>
+          <td colspan="4" class="text-end fw-bold">Courier Shipping Fee:</td>
+          <td class="text-end font-monospace fw-bold">{{ order.shipping_price|bdt }}</td>
+        </tr>
+        <tr class="table-light fs-6">
+          <td colspan="4" class="text-end fw-extrabold text-primary">GRAND TOTAL:</td>
+          <td class="text-end font-monospace fw-extrabold text-primary">{{ order.total_price|bdt }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Warranty Terms & Signatures -->
+    <div class="row pt-4 mt-4 border-top text-muted small">
+      <div class="col-8">
+        <h6 class="fw-bold text-dark mb-1">Warranty & RMA Policy:</h6>
+        <p class="mb-0" style="font-size: 0.72rem;">
+          1. Official warranty covers manufacturing defects as per brand terms.<br>
+          2. Burn marks, physical breakage, liquid damage, or sticker tampering void warranty.<br>
+          3. Keep this invoice copy for all RMA warranty claims at our Motijheel service center.
+        </p>
+      </div>
+      <div class="col-4 text-center pt-3">
+        <div class="border-bottom border-dark pb-4 mb-1"></div>
+        <small class="fw-bold text-dark">Authorized Signature & Seal</small>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

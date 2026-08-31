@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}Order Details: {{ order.tracking_number }} | Orient Computers{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'core:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'orders:order_history' %}" class="text-decoration-none">Orders</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ order.tracking_number }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-4">
+    
+    <!-- Left Column: Master Details -->
+    <div class="col-lg-8">
+      
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted small">Tracking Number:</span>
+            <strong class="font-monospace fs-5 text-primary ms-1">{{ order.tracking_number }}</strong>
+          </div>
+          <span class="badge bg-primary fs-6 px-3 py-1.5">{{ order.order_status }}</span>
+        </div>
+
+        <div class="card-body p-4">
+          
+          <!-- Recipient Details Grid -->
+          <div class="row g-3 mb-4 small">
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded-3 border h-100">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-person-fill text-primary me-1"></i> Customer Contact</h6>
+                <div><strong>{{ order.shipping_address.fullName }}</strong></div>
+                <div class="text-muted">Phone: {{ order.shipping_address.phone }}</div>
+                <div class="text-muted">Email: {{ order.shipping_address.email }}</div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded-3 border h-100">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-geo-alt-fill text-primary me-1"></i> Shipping Destination</h6>
+                <div class="text-dark">{{ order.shipping_address.street }}</div>
+                <div class="text-muted">{{ order.shipping_address.district }}, {{ order.shipping_address.division }}</div>
+                <div class="mt-2 text-primary fw-bold">Method: {{ order.get_shipping_method_display }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Packaged Items Table -->
+          <h6 class="fw-bold text-dark mb-3">Itemized Hardware</h6>
+          <div class="table-responsive mb-3">
+            <table class="table table-bordered align-middle small mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Hardware Component</th>
+                  <th class="text-center">Unit Price</th>
+                  <th class="text-center">Qty</th>
+                  <th class="text-end">Line Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in order.items.all %}
+                  <tr>
+                    <td>
+                      <strong class="text-dark">{{ item.name }}</strong>
+                      <small class="text-muted d-block">SKU: {{ item.product.sku }} | Warranty: {{ item.product.warranty }}</small>
+                    </td>
+                    <td class="text-center">{{ item.price|bdt }}</td>
+                    <td class="text-center fw-bold">{{ item.qty }}</td>
+                    <td class="text-end fw-bold">{{ item.line_total|bdt }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot class="table-light">
+                <tr>
+                  <td colspan="3" class="text-end fw-bold">Items Subtotal:</td>
+                  <td class="text-end fw-bold">{{ order.items_price|bdt }}</td>
+                </tr>
+                {% if order.discount_amount > 0 %}
+                  <tr class="text-success">
+                    <td colspan="3" class="text-end fw-bold">Coupon Discount:</td>
+                    <td class="text-end fw-bold">- {{ order.discount_amount|bdt }}</td>
+                  </tr>
+                {% endif %}
+                <tr>
+                  <td colspan="3" class="text-end fw-bold">Courier Shipping Fee:</td>
+                  <td class="text-end fw-bold">{{ order.shipping_price|bdt }}</td>
+                </tr>
+                <tr class="table-primary fs-6">
+                  <td colspan="3" class="text-end fw-extrabold text-primary">Grand Total:</td>
+                  <td class="text-end fw-extrabold text-primary">{{ order.total_price|bdt }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <a href="{% url 'orders:order_history' %}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-arrow-left me-1"></i> Back to Orders
+            </a>
+            <a href="{% url 'orders:print_invoice' tracking_number=order.tracking_number %}" target="_blank" class="btn btn-outline-dark btn-sm">
+              <i class="bi bi-printer me-1"></i> Print Tax Invoice
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Timeline Log -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 p-4 sticky-lg-top" style="top: 80px;">
+        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-clock-history text-primary me-1"></i> Fulfillment Progress</h6>
+        
+        <div class="ps-3 border-start border-2 border-primary small">
+          {% for t in order.status_timeline %}
+            <div class="mb-3">
+              <strong class="text-primary d-block">{{ t.status }}</strong>
+              <span class="text-dark">{{ t.note }}</span>
+              <small class="text-muted d-block" style="font-size: 0.7rem;">{{ t.timestamp|slice:":19" }}</small>
+            </div>
+          {% endfor %}
+        </div>
+
+        <hr>
+
+        <a href="{% url 'orders:track_order' %}?tracking_number={{ order.tracking_number }}&phone={{ order.shipping_address.phone }}" class="btn btn-primary btn-sm w-100 fw-bold">
+          <i class="bi bi-truck me-1"></i> Open Public Tracker
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

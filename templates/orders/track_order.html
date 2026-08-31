@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static orient_tags %}
+
+{% block title %}Live Order Tracking | Orient Computers & Engineering{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      
+      <!-- Page Header -->
+      <div class="text-center mb-4">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 fs-6 mb-2">Live Fulfillment Telemetry</span>
+        <h2 class="fw-extrabold text-dark">Track Your Hardware Delivery</h2>
+        <p class="text-muted small">Enter your Orient tracking number and registered recipient phone number to inspect milestone status.</p>
+      </div>
+
+      <!-- Public Tracking Search Form (REQ-F-ORD-01) -->
+      <div class="card shadow-sm border-0 p-4 mb-4">
+        <form method="POST" action="{% url 'orders:track_order' %}" class="row g-3 align-items-end">
+          {% csrf_token %}
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-dark">Tracking Number <span class="text-danger">*</span></label>
+            <input type="text" name="tracking_number" class="form-control form-control-lg font-monospace text-uppercase" placeholder="ORIENT-2026-XXXXXX" value="{{ tracking_number }}" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-bold text-dark">Recipient Mobile Phone <span class="text-muted fw-normal">(Optional)</span></label>
+            <input type="text" name="phone" class="form-control form-control-lg" placeholder="01XXXXXXXXX" value="{{ phone }}">
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm">
+              <i class="bi bi-search"></i> Track
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Live Order 5-Stage Stepper & Milestones Display (REQ-F-ORD-01) -->
+      {% if order %}
+        <div class="card shadow-sm border-0 p-4 p-md-5 mb-4">
+          
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom gap-2">
+            <div>
+              <span class="text-muted small">Tracking Code:</span>
+              <h4 class="font-monospace fw-bold text-primary mb-0">{{ order.tracking_number }}</h4>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-primary fs-6 px-3 py-1.5">{{ order.order_status }}</span>
+              <small class="text-muted d-block mt-1">Placed: {{ order.created_at|date:"M d, Y, h:i A" }}</small>
+            </div>
+          </div>
+
+          <!-- 5-Stage Order Stepper Progress Visualizer -->
+          <div class="order-stepper mb-5">
+            
+            <!-- Step 1: Pending -->
+            <div class="stepper-step {% if order.get_status_index >= 0 %}completed{% endif %} {% if order.order_status == 'Pending' %}active{% endif %}">
+              <div class="stepper-icon">
+                {% if order.get_status_index > 0 %}<i class="bi bi-check2"></i>{% else %}1{% endif %}
+              </div>
+              <div class="stepper-label">Pending</div>
+            </div>
+
+            <!-- Step 2: Confirmed -->
+            <div class="stepper-step {% if order.get_status_index >= 1 %}completed{% endif %} {% if order.order_status == 'Confirmed' %}active{% endif %}">
+              <div class="stepper-icon">
+                {% if order.get_status_index > 1 %}<i class="bi bi-check2"></i>{% else %}2{% endif %}
+              </div>
+              <div class="stepper-label">Confirmed</div>
+            </div>
+
+            <!-- Step 3: Processing -->
+            <div class="stepper-step {% if order.get_status_index >= 2 %}completed{% endif %} {% if order.order_status == 'Processing' %}active{% endif %}">
+              <div class="stepper-icon">
+                {% if order.get_status_index > 2 %}<i class="bi bi-check2"></i>{% else %}3{% endif %}
+              </div>
+              <div class="stepper-label">Packaging</div>
+            </div>
+
+            <!-- Step 4: Shipped -->
+            <div class="stepper-step {% if order.get_status_index >= 3 %}completed{% endif %} {% if order.order_status == 'Shipped' %}active{% endif %}">
+              <div class="stepper-icon">
+                {% if order.get_status_index > 3 %}<i class="bi bi-check2"></i>{% else %}4{% endif %}
+              </div>
+              <div class="stepper-label">On Courier</div>
+            </div>
+
+            <!-- Step 5: Delivered -->
+            <div class="stepper-step {% if order.get_status_index >= 4 %}completed{% endif %} {% if order.order_status == 'Delivered' %}active{% endif %}">
+              <div class="stepper-icon">
+                {% if order.get_status_index >= 4 %}<i class="bi bi-check2"></i>{% else %}5{% endif %}
+              </div>
+              <div class="stepper-label">Delivered</div>
+            </div>
+
+          </div>
+
+          <!-- Timeline Activity Log (REQ-F-ORD-01) -->
+          <h5 class="fw-bold text-dark mb-3">Fulfillment Timeline Activity</h5>
+          <div class="timeline ps-3 border-start border-3 border-primary mb-4">
+            {% for t in order.status_timeline %}
+              <div class="mb-3 position-relative">
+                <strong class="text-primary d-block">{{ t.status }}</strong>
+                <span class="text-dark small d-block">{{ t.note }}</span>
+                <small class="text-muted" style="font-size: 0.72rem;">{{ t.timestamp|slice:":19" }}</small>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Itemized Snapshot Summary -->
+          <h5 class="fw-bold text-dark mb-3">Ordered Hardware Items</h5>
+          <div class="table-responsive mb-3">
+            <table class="table table-bordered align-middle small">
+              <thead class="table-light">
+                <tr>
+                  <th>Component</th>
+                  <th class="text-center">Qty</th>
+                  <th class="text-end">Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in order.items.all %}
+                  <tr>
+                    <td>
+                      <strong class="text-dark">{{ item.name }}</strong>
+                      <small class="text-muted d-block font-monospace">SKU: {{ item.product.sku }}</small>
+                    </td>
+                    <td class="text-center">{{ item.qty }}</td>
+                    <td class="text-end font-monospace">{{ item.line_total|bdt }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="2" class="text-end">Grand Total:</th>
+                  <th class="text-end text-primary font-monospace fs-6">{{ order.total_price|bdt }}</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="text-center mt-3">
+            <a href="{% url 'orders:print_invoice' tracking_number=order.tracking_number %}" target="_blank" class="btn btn-outline-dark btn-sm fw-bold">
+              <i class="bi bi-printer me-1"></i> Print Official VAT / Tax Receipt
+            </a>
+          </div>
+
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

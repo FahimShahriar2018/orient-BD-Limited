@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Orient Computers & Engineering | Computer Hardware & IT Store{% endblock %}</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3 CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Orient Theme CSS -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/orient.css' %}?v=2.0">
+  
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Top Support Bar (REQ-F-NAV-01) -->
+  <div class="orient-topbar py-1 d-none d-md-block border-bottom">
+    <div class="container-fluid px-lg-5">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <span><i class="bi bi-telephone-fill text-primary me-1"></i> Hotline: <strong>+880 1711-000001</strong></span>
+          <span><i class="bi bi-geo-alt-fill text-danger me-1"></i> Motijheel Flagship Showroom, Dhaka</span>
+          <span><i class="bi bi-shield-check text-success me-1"></i> 100% Genuine Official Warranty</span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <a href="{% url 'orders:track_order' %}" class="text-light text-decoration-none small hover-underline">
+            <i class="bi bi-truck me-1"></i> Track Order
+          </a>
+          <span class="text-secondary">|</span>
+          <a href="{% url 'service:branches' %}" class="text-light text-decoration-none small hover-underline">
+            <i class="bi bi-shop me-1"></i> Showrooms
+          </a>
+          <span class="text-secondary">|</span>
+          <a href="{% url 'service:complain' %}" class="text-light text-decoration-none small hover-underline">
+            <i class="bi bi-headset me-1"></i> RMA Support
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation Header -->
+  {% include 'partials/navbar.html' %}
+
+  <!-- Global Toast / Message Alerts -->
+  {% if messages %}
+    <div class="container-fluid px-lg-5 mt-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Main Content Body -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Global Footer -->
+  {% include 'partials/footer.html' %}
+
+  <!-- Interactive Slide-Out Cart Drawer (Offcanvas) -->
+  {% include 'partials/cart_drawer.html' %}
+
+  <!-- Mobile Sticky Bottom Navigation -->
+  {% include 'partials/mobile_bottom_nav.html' %}
+
+  <!-- Global Bootstrap Toast Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="orient-global-toast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <strong id="toast-title" class="d-block mb-1"></strong>
+          <span id="toast-body"></span>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Orient Client JS -->
+  <script src="{% static 'js/orient.js' %}"></script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
