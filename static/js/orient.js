@@ -1,5 +1,88 @@
 document.addEventListener('DOMContentLoaded', function () {
 
+  // 0. Theme Manager (Day / Night Mode)
+  function initThemeEngine() {
+    const STORAGE_KEY = 'orient_theme';
+
+    function getStoredTheme() {
+      return localStorage.getItem(STORAGE_KEY);
+    }
+
+    function getPreferredTheme() {
+      const stored = getStoredTheme();
+      if (stored === 'dark' || stored === 'light') {
+        return stored;
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function updateThemeButtons(theme) {
+      const toggleButtons = document.querySelectorAll('#theme-toggle-btn, #admin-theme-toggle-btn, .theme-toggle-btn');
+      const isDark = (theme === 'dark');
+
+      toggleButtons.forEach(btn => {
+        btn.setAttribute('aria-label', isDark ? 'Switch to Day mode' : 'Switch to Night mode');
+        btn.setAttribute('title', isDark ? 'Switch to Day mode' : 'Switch to Night mode');
+
+        const moonIcon = btn.querySelector('.theme-icon-moon');
+        const sunIcon = btn.querySelector('.theme-icon-sun');
+
+        if (moonIcon && sunIcon) {
+          if (isDark) {
+            moonIcon.classList.add('d-none');
+            sunIcon.classList.remove('d-none');
+          } else {
+            moonIcon.classList.remove('d-none');
+            sunIcon.classList.add('d-none');
+          }
+        } else {
+          btn.innerHTML = isDark
+            ? '<i class="bi bi-sun-fill text-warning"></i>'
+            : '<i class="bi bi-moon-stars-fill"></i>';
+        }
+      });
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-bs-theme', theme);
+      updateThemeButtons(theme);
+    }
+
+    // Set initial icon states
+    const activeTheme = document.documentElement.getAttribute('data-bs-theme') || getPreferredTheme();
+    applyTheme(activeTheme);
+
+    // Event listener for theme toggles
+    document.addEventListener('click', function (e) {
+      const btn = e.target.closest('#theme-toggle-btn, #admin-theme-toggle-btn, .theme-toggle-btn');
+      if (btn) {
+        e.preventDefault();
+        const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+        const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        localStorage.setItem(STORAGE_KEY, nextTheme);
+        applyTheme(nextTheme);
+
+        if (typeof showToast === 'function') {
+          showToast('Theme Mode', nextTheme === 'dark' ? '🌙 Night mode enabled.' : '☀️ Day mode enabled.');
+        }
+      }
+    });
+
+    // Listen for OS color scheme change
+    try {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+        if (!getStoredTheme()) {
+          applyTheme(e.matches ? 'dark' : 'light');
+        }
+      });
+    } catch (err) {
+      // Fallback for older browsers
+    }
+  }
+
+  initThemeEngine();
+
   // 1. Debounced Live Universal Search (300ms)
   const searchInput = document.getElementById('orient-search-input');
   const searchCategory = document.getElementById('orient-search-category');

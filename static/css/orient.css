@@ -1,4 +1,5 @@
-:root {
+/* Light Theme Variables (Default) */
+:root, [data-bs-theme="light"] {
   --orient-primary: #4F2C70;
   --orient-dark: #242424;
   --orient-accent: #92278F;
@@ -9,8 +10,60 @@
   --orient-danger: #EF4444;
   --orient-bg: #F6F6F6;
   --orient-surface: #FFFFFF;
+  --orient-surface-secondary: #F8FAFC;
   --orient-border: #E2E8F0;
   --orient-muted: #64748B;
+  --orient-card-bg: #FFFFFF;
+  --orient-nav-bg: #FFFFFF;
+  --orient-category-bg: #E6E3EC;
+  --orient-category-text: #242424;
+  --orient-category-border: #D6D0E0;
+  --orient-topbar-bg: #3A1E54;
+  --orient-topbar-text: #E2D9EC;
+  --orient-product-img-bg: #F8FAFC;
+  --orient-input-bg: #FFFFFF;
+  --orient-input-border: #CBD5E1;
+  --orient-input-text: #1E293B;
+  --orient-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Theme Variables (Night Mode) */
+[data-bs-theme="dark"] {
+  --orient-primary: #B768E6;
+  --orient-dark: #F1F5F9;
+  --orient-accent: #D946EF;
+  --orient-magenta: #D946EF;
+  --orient-purple: #92278F;
+  --orient-success: #34D399;
+  --orient-warning: #FBBF24;
+  --orient-danger: #F87171;
+  --orient-bg: #0B0F19;
+  --orient-surface: #151D2F;
+  --orient-surface-secondary: #1E293B;
+  --orient-border: #26334D;
+  --orient-muted: #94A3B8;
+  --orient-card-bg: #151D2F;
+  --orient-nav-bg: #111827;
+  --orient-category-bg: #161F33;
+  --orient-category-text: #E2E8F0;
+  --orient-category-border: #26334D;
+  --orient-topbar-bg: #0A0E1A;
+  --orient-topbar-text: #CBD5E1;
+  --orient-product-img-bg: #192339;
+  --orient-input-bg: #1E293B;
+  --orient-input-border: #334155;
+  --orient-input-text: #F1F5F9;
+  --orient-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
+
+  /* Bootstrap Dark Theme System Overrides */
+  --bs-body-bg: #0B0F19;
+  --bs-body-color: #F1F5F9;
+  --bs-card-bg: #151D2F;
+  --bs-card-border-color: #26334D;
+  --bs-tertiary-bg: #1E293B;
+  --bs-secondary-bg: #192339;
+  --bs-border-color: #26334D;
+  --bs-border-color-translucent: rgba(255, 255, 255, 0.12);
 }
 
 body {
@@ -20,6 +73,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 main {
@@ -77,20 +131,118 @@ main {
   background-color: #4F2C70 !important;
 }
 
-/* Navbar & Brand */
+/* ==========================================================================
+   Theme Switcher Button
+   ========================================================================== */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50% !important;
+  cursor: pointer;
+  border: 1px solid var(--orient-border) !important;
+  background-color: var(--orient-surface) !important;
+  color: var(--orient-dark) !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 0;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle-btn i {
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover i {
+  transform: rotate(15deg);
+}
+
+[data-bs-theme="dark"] .theme-toggle-btn {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #FBBF24 !important;
+}
+
+/* ==========================================================================
+   Bootstrap Theme Overrides for Orient Brand
+   ========================================================================== */
+.btn-primary {
+  background-color: #92278F !important;
+  border-color: #92278F !important;
+  color: #FFFFFF !important;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: #7B1F78 !important;
+  border-color: #7B1F78 !important;
+  color: #FFFFFF !important;
+}
+
+.btn-outline-primary {
+  color: #92278F !important;
+  border-color: #92278F !important;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+  background-color: #92278F !important;
+  border-color: #92278F !important;
+  color: #FFFFFF !important;
+}
+
+.btn-purple {
+  background-color: #4F2C70 !important;
+  border-color: #4F2C70 !important;
+  color: #FFFFFF !important;
+}
+
+.btn-purple:hover {
+  background-color: #3C1F56 !important;
+  color: #FFFFFF !important;
+}
+
+.text-primary, .text-orient {
+  color: var(--orient-accent) !important;
+}
+
+.text-purple {
+  color: var(--orient-purple) !important;
+}
+
+.bg-primary {
+  background-color: #92278F !important;
+}
+
+.bg-purple {
+  background-color: #4F2C70 !important;
+}
+
+/* ==========================================================================
+   Navbar & Brand
+   ========================================================================== */
 .orient-header {
-  background-color: #FFFFFF;
+  background-color: var(--orient-nav-bg);
   border-bottom: 1px solid var(--orient-border);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .orient-topbar {
-  background-color: #3A1E54;
-  color: #E2D9EC;
+  background-color: var(--orient-topbar-bg);
+  color: var(--orient-topbar-text);
   font-size: 0.8125rem;
+  transition: background-color 0.25s ease;
 }
 
 .orient-navbar {
-  background: var(--orient-surface);
+  background: var(--orient-nav-bg);
+  border-bottom: 1px solid var(--orient-border) !important;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .orient-brand-text {
@@ -100,15 +252,20 @@ main {
   color: #4F2C70;
 }
 
-/* Category Navigation Pill */
+[data-bs-theme="dark"] .orient-brand-text {
+  color: #D946EF !important;
+}
+
+/* Category Navigation Bar */
 .category-nav-bar {
-  background: #E6E3EC;
-  color: #242424;
-  border-bottom: 1px solid #D6D0E0;
+  background: var(--orient-category-bg);
+  color: var(--orient-category-text);
+  border-bottom: 1px solid var(--orient-category-border);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .category-nav-bar .nav-link {
-  color: #242424;
+  color: var(--orient-category-text);
   font-size: 0.875rem;
   font-weight: 600;
   padding: 0.6rem 0.9rem;
@@ -121,20 +278,30 @@ main {
   border-radius: 4px;
 }
 
-/* Product Cards */
+[data-bs-theme="dark"] .category-nav-bar .nav-link:hover {
+  background-color: #92278F;
+}
+
+/* ==========================================================================
+   Product Cards
+   ========================================================================== */
 .product-card {
   border: 1px solid var(--orient-border);
   border-radius: 10px;
-  background: #FFFFFF;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: var(--orient-card-bg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.25s ease, border-color 0.25s ease;
   position: relative;
   overflow: hidden;
 }
 
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+  box-shadow: var(--orient-shadow);
   border-color: #CBD5E1;
+}
+
+[data-bs-theme="dark"] .product-card:hover {
+  border-color: #475569;
 }
 
 .product-card .badge-overlay {
@@ -161,10 +328,22 @@ main {
   transition: all 0.15s;
 }
 
+[data-bs-theme="dark"] .product-card .wishlist-btn {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: var(--orient-border);
+  color: var(--orient-muted);
+}
+
 .product-card .wishlist-btn:hover,
 .product-card .wishlist-btn.active {
   color: var(--orient-danger);
   background: #FFFFFF;
+}
+
+[data-bs-theme="dark"] .product-card .wishlist-btn:hover,
+[data-bs-theme="dark"] .product-card .wishlist-btn.active {
+  background: #1E293B;
+  color: #F87171;
 }
 
 .product-card .product-img-container {
@@ -173,8 +352,9 @@ main {
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: #F8FAFC;
+  background: var(--orient-product-img-bg);
   border-bottom: 1px solid var(--orient-border);
+  transition: background-color 0.25s ease;
 }
 
 .product-card .product-img-container img {
@@ -186,6 +366,64 @@ main {
 
 .product-card:hover .product-img-container img {
   transform: scale(1.05);
+}
+
+/* ==========================================================================
+   Universal Search Overlay Dropdown
+   ========================================================================== */
+#search-results-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background: var(--orient-surface);
+  border: 1px solid var(--orient-border);
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  max-height: 400px;
+  overflow-y: auto;
+  display: none;
+}
+
+[data-bs-theme="dark"] #search-results-dropdown {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--orient-border);
+  text-decoration: none;
+  color: var(--orient-dark);
+  transition: background 0.15s;
+}
+
+.search-item:hover {
+  background-color: var(--orient-surface-secondary);
+}
+
+/* Flash Deals Card */
+.flash-deals-card {
+  background: linear-gradient(135deg, #FDF4FF 0%, #FAE8FF 100%);
+  border: 1.5px solid #F0ABFC !important;
+}
+
+[data-bs-theme="dark"] .flash-deals-card {
+  background: linear-gradient(135deg, #1C1938 0%, #151D2F 100%) !important;
+  border: 1.5px solid #7B1F78 !important;
+}
+
+/* Department Icons */
+.dept-icon {
+  background: #F3E8FF;
+  color: #92278F;
+}
+
+[data-bs-theme="dark"] .dept-icon {
+  background: #2D1A45 !important;
+  color: #D946EF !important;
 }
 
 /* Flash Deal Countdown Segments */
@@ -205,6 +443,12 @@ main {
   text-align: center;
 }
 
+[data-bs-theme="dark"] .countdown-segment {
+  background: #1E293B;
+  color: #F1F5F9;
+  border: 1px solid var(--orient-border);
+}
+
 .countdown-label {
   font-size: 0.65rem;
   text-transform: uppercase;
@@ -212,37 +456,7 @@ main {
   display: block;
 }
 
-/* Universal Search Overlay Dropdown */
-#search-results-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 1050;
-  background: #FFFFFF;
-  border: 1px solid var(--orient-border);
-  border-radius: 0 0 8px 8px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
-  max-height: 400px;
-  overflow-y: auto;
-  display: none;
-}
-
-.search-item {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #F1F5F9;
-  text-decoration: none;
-  color: var(--orient-dark);
-  transition: background 0.15s;
-}
-
-.search-item:hover {
-  background-color: #F8FAFC;
-}
-
-/* Order Stepper (5 Stages) */
+/* Order Stepper */
 .order-stepper {
   display: flex;
   justify-content: space-between;
@@ -257,7 +471,7 @@ main {
   left: 30px;
   right: 30px;
   height: 4px;
-  background: #E2E8F0;
+  background: var(--orient-border);
   z-index: 1;
 }
 
@@ -272,14 +486,14 @@ main {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: #FFFFFF;
-  border: 3px solid #CBD5E1;
+  background: var(--orient-surface);
+  border: 3px solid var(--orient-border);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 0.5rem;
   font-weight: 700;
-  color: #94A3B8;
+  color: var(--orient-muted);
   transition: all 0.3s;
 }
 
@@ -290,16 +504,16 @@ main {
 }
 
 .stepper-step.active .stepper-icon {
-  background: var(--orient-accent);
-  border-color: var(--orient-accent);
+  background: #92278F;
+  border-color: #92278F;
   color: #FFFFFF;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 0 4px rgba(146, 39, 143, 0.25);
 }
 
 .stepper-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748B;
+  color: var(--orient-muted);
 }
 
 .stepper-step.completed .stepper-label,
@@ -307,16 +521,17 @@ main {
   color: var(--orient-dark);
 }
 
-/* Bottom Mobile Nav */
+/* Mobile Bottom Nav */
 .mobile-bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 1030;
-  background: #FFFFFF;
+  background: var(--orient-surface);
   border-top: 1px solid var(--orient-border);
   display: none;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 @media (max-width: 767.98px) {
@@ -332,6 +547,11 @@ main {
 .orient-footer {
   background-color: #0F172A !important;
   color: #94A3B8;
+}
+
+[data-bs-theme="dark"] .orient-footer {
+  background-color: #080C14 !important;
+  border-top: 1px solid var(--orient-border);
 }
 
 .orient-footer a {
@@ -362,8 +582,129 @@ main {
   left: 0;
   width: 28px;
   height: 2px;
-  background-color: var(--orient-accent);
+  background-color: #92278F;
   border-radius: 2px;
+}
+
+/* ==========================================================================
+   Dark Mode Component Helpers & Refinements
+   ========================================================================== */
+[data-bs-theme="dark"] .bg-white {
+  background-color: var(--orient-surface) !important;
+  color: var(--orient-dark);
+}
+
+[data-bs-theme="dark"] .bg-light {
+  background-color: var(--orient-surface-secondary) !important;
+  color: var(--orient-dark);
+}
+
+[data-bs-theme="dark"] .text-dark {
+  color: #F1F5F9 !important;
+}
+
+[data-bs-theme="dark"] .text-secondary {
+  color: #94A3B8 !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+  color: #94A3B8 !important;
+}
+
+[data-bs-theme="dark"] .border,
+[data-bs-theme="dark"] .border-top,
+[data-bs-theme="dark"] .border-bottom,
+[data-bs-theme="dark"] .border-start,
+[data-bs-theme="dark"] .border-end {
+  border-color: var(--orient-border) !important;
+}
+
+[data-bs-theme="dark"] .card {
+  background-color: var(--orient-card-bg);
+  border-color: var(--orient-border);
+}
+
+[data-bs-theme="dark"] .card-header,
+[data-bs-theme="dark"] .card-footer {
+  background-color: var(--orient-surface);
+  border-color: var(--orient-border);
+}
+
+[data-bs-theme="dark"] .list-group-item {
+  background-color: var(--orient-surface);
+  color: var(--orient-dark);
+  border-color: var(--orient-border);
+}
+
+[data-bs-theme="dark"] .list-group-item-action:hover {
+  background-color: var(--orient-surface-secondary);
+  color: var(--orient-dark);
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background-color: var(--orient-input-bg);
+  border-color: var(--orient-input-border);
+  color: var(--orient-input-text);
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+  background-color: var(--orient-input-bg);
+  border-color: #92278F;
+  color: var(--orient-input-text);
+  box-shadow: 0 0 0 0.25rem rgba(146, 39, 143, 0.25);
+}
+
+[data-bs-theme="dark"] .breadcrumb {
+  background-color: var(--orient-surface) !important;
+  border-color: var(--orient-border) !important;
+}
+
+[data-bs-theme="dark"] .offcanvas {
+  background-color: var(--orient-surface);
+  color: var(--orient-dark);
+}
+
+[data-bs-theme="dark"] .modal-content {
+  background-color: var(--orient-surface);
+  color: var(--orient-dark);
+  border-color: var(--orient-border);
+}
+
+[data-bs-theme="dark"] .dropdown-menu {
+  background-color: var(--orient-surface);
+  border-color: var(--orient-border);
+  color: var(--orient-dark);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+[data-bs-theme="dark"] .dropdown-item {
+  color: var(--orient-dark);
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover {
+  background-color: var(--orient-surface-secondary);
+  color: #FFFFFF;
+}
+
+[data-bs-theme="dark"] .table {
+  color: var(--orient-dark);
+  border-color: var(--orient-border);
+}
+
+[data-bs-theme="dark"] .table > :not(caption) > * > * {
+  background-color: var(--orient-surface);
+  color: var(--orient-dark);
+  border-bottom-color: var(--orient-border);
+}
+
+[data-bs-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+[data-bs-theme="dark"] .mobile-bottom-nav a {
+  color: #E2E8F0 !important;
 }
 
 /* Print Invoice Rules */

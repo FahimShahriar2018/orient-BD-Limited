@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Orient Computers & Engineering | Computer Hardware & IT Store{% endblock %}</title>
 
+  <!-- Theme Color and Preference Setup (Prevents FOUC) -->
+  <script>
+    (function () {
+      const storedTheme = localStorage.getItem('orient_theme');
+      const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-bs-theme', theme);
+    })();
+  </script>
+
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
