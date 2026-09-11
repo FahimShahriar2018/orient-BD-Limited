@@ -112,3 +112,62 @@ class AccountsAuthTests(TestCase):
         self.assertFalse(response.context['user'].is_authenticated)
         messages = list(response.context['messages'])
         self.assertTrue(any('Invalid username/email or password' in str(m) for m in messages))
+
+    def test_login_page_has_forgot_password_link(self):
+        """Verify the login page displays the Forgot Password link."""
+        response = self.client.get(self.login_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse('accounts:password_reset'))
+        self.assertContains(response, 'Forgot Password?')
+
+    def test_password_reset_flow(self):
+        """Test the end-to-end password reset flow."""
+        from django.core import mail
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+        from django.contrib.auth.tokens import default_token_generator
+
+        # 1. Access the reset page
+        reset_url = reverse('accounts:password_reset')
+        response = self.client.get(reset_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Forgot Password?')
+
+        # 2. Submit registered email address
+        response = self.client.post(reset_url, {'email': self.existing_user.email}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('accounts:password_reset_done'))
+        self.assertContains(response, 'Check Your Email')
+
+        # 3. Verify email was dispatched
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('Password Reset Request', mail.outbox[0].subject)
+        self.assertIn(self.existing_user.email, mail.outbox[0].to)
+
+        # 4. Generate token and visit confirm page
+        uid = urlsafe_base64_encode(force_bytes(self.existing_user.pk))
+        token = default_token_generator.make_token(self.existing_user)
+        confirm_url = reverse('accounts:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+        
+        response = self.client.get(confirm_url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Set New Password')
+
+        # 5. Submit new password to the active confirm session endpoint
+        new_password = 'BrandNewPassword2026!'
+        post_url = response.request['PATH_INFO']
+        response = self.client.post(post_url, {
+            'new_password1': new_password,
+            'new_password2': new_password,
+        }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('accounts:password_reset_complete'))
+        self.assertContains(response, 'Password Reset Successful')
+
+        # 6. Verify user can log in with new password
+        login_response = self.client.post(self.login_url, {
+            'username': self.existing_user.username,
+            'password': new_password,
+        }, follow=True)
+        self.assertEqual(login_response.status_code, 200)
+        self.assertTrue(login_response.context['user'].is_authenticated)

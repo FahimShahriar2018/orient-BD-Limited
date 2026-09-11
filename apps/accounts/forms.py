@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, SetPasswordForm
 from .models import User
 from apps.orders.bd_geodata import ALL_DIVISIONS
 
@@ -74,3 +74,30 @@ class UserAddressForm(forms.ModelForm):
             'address_district': forms.Select(attrs={'class': 'form-select', 'id': 'id_district'}),
             'address_postal': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 1205'}),
         }
+
+
+class UserPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(
+        label='Registered Email Address',
+        max_length=254,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control form-control-lg',
+            'placeholder': 'name@example.com',
+            'autocomplete': 'email',
+        })
+    )
+
+
+class UserSetPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'new_password1' in self.fields:
+            self.fields['new_password1'].widget.attrs.update({
+                'class': 'form-control form-control-lg',
+                'placeholder': 'New password (min 8 chars)'
+            })
+        if 'new_password2' in self.fields:
+            self.fields['new_password2'].widget.attrs.update({
+                'class': 'form-control form-control-lg',
+                'placeholder': 'Confirm new password'
+            })
