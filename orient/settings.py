@@ -10,9 +10,11 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-orient-change-me')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
-    default='localhost,127.0.0.1,testserver,.onrender.com,orient-bd.onrender.com',
+    default='*',
     cast=lambda v: [s.strip().replace('https://', '').replace('http://', '').strip('/') for s in v.split(',') if s.strip()]
 )
+if '*' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('*')
 
 # Render provides RENDER_EXTERNAL_HOSTNAME automatically
 RENDER_EXTERNAL_HOSTNAME = config('RENDER_EXTERNAL_HOSTNAME', default=None)
