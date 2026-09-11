@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 import dj_database_url
 from pathlib import Path
 from decouple import config
@@ -9,15 +10,28 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-orient-change-me')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
-    default='localhost,127.0.0.1,testserver,.onrender.com',
-    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
+    default='localhost,127.0.0.1,testserver,.onrender.com,orient-bd.onrender.com',
+    cast=lambda v: [s.strip().replace('https://', '').replace('http://', '').strip('/') for s in v.split(',') if s.strip()]
 )
+
+# Render provides RENDER_EXTERNAL_HOSTNAME automatically
+RENDER_EXTERNAL_HOSTNAME = config('RENDER_EXTERNAL_HOSTNAME', default=None)
+if RENDER_EXTERNAL_HOSTNAME:
+    clean_host = RENDER_EXTERNAL_HOSTNAME.replace('https://', '').replace('http://', '').strip('/')
+    if clean_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(clean_host)
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CSRF_TRUSTED_ORIGINS = config(
     'CSRF_TRUSTED_ORIGINS',
-    default='https://*.onrender.com,http://localhost:8000,http://127.0.0.1:8000',
+    default='https://*.onrender.com,https://orient-bd.onrender.com,http://localhost:8000,http://127.0.0.1:8000',
     cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
 )
+if RENDER_EXTERNAL_HOSTNAME:
+    render_origin = f"https://{clean_host}"
+    if render_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(render_origin)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
