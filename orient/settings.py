@@ -1,3 +1,4 @@
+import dj_database_url
 from pathlib import Path
 from decouple import config
 from django.contrib.messages import constants as message_constants
@@ -8,8 +9,14 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-orient-change-me')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
-    default='localhost,127.0.0.1,testserver',
-    cast=lambda v: [s.strip() for s in v.split(',')]
+    default='localhost,127.0.0.1,testserver,.onrender.com',
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
+)
+
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://*.onrender.com,http://localhost:8000,http://127.0.0.1:8000',
+    cast=lambda v: [s.strip() for s in v.split(',') if s.strip()]
 )
 
 INSTALLED_APPS = [
@@ -70,13 +77,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'orient.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 AUTH_USER_MODEL = 'accounts.User'
+
+AUTHENTICATION_BACKENDS = [
+    'apps.accounts.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -94,7 +107,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+WHITENOISE_MANIFEST_STRICT = False
 
 # Media files
 MEDIA_URL = '/media/'
@@ -121,5 +142,5 @@ MESSAGE_TAGS = {
     message_constants.INFO: 'info',
     message_constants.SUCCESS: 'success',
     message_constants.WARNING: 'warning',
-    message_constants.ERROR: 'error',
+    message_constants.ERROR: 'danger',
 }

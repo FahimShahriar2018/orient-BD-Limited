@@ -17,6 +17,19 @@ class UserRegisterForm(UserCreationForm):
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Choose username'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'password1' in self.fields:
+            self.fields['password1'].widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': 'Enter strong password (min 8 chars)'
+            })
+        if 'password2' in self.fields:
+            self.fields['password2'].widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': 'Confirm password'
+            })
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email__iexact=email).exists():
@@ -25,8 +38,14 @@ class UserRegisterForm(UserCreationForm):
 
 
 class UserLoginForm(AuthenticationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Username or Email'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Password'}))
+    username = forms.CharField(
+        label='Username or Email Address',
+        widget=forms.TextInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Username or Email'})
+    )
+    password = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput(attrs={'class': 'form-control form-control-lg', 'placeholder': 'Password'})
+    )
 
 
 class UserProfileForm(forms.ModelForm):

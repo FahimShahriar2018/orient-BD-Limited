@@ -17,9 +17,11 @@ def register_view(request):
             user = form.save(commit=False)
             user.role = 'customer'
             user.save()
-            login(request, user)
+            login(request, user, backend='apps.accounts.backends.EmailOrUsernameModelBackend')
             messages.success(request, f'Welcome to Orient Computers, {user.first_name}! Your account is ready.')
             return redirect('accounts:dashboard')
+        else:
+            messages.error(request, 'Please correct the errors in the registration form below.')
     else:
         form = UserRegisterForm()
 
